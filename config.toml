@@ -1,0 +1,17 @@
+baseURL = 'http://blog.reb.gg/'
+languageCode = 'en-us'
+theme = 'hello-friend'
+
+[params]
+  contentTypeName = "posts"
+  defaultTheme = "dark"
+  showReadingTime = true
+
+[languages]
+  [languages.en]
+    title = "rob's blog"
+    subtitle = "tech rambles"
+
+    [languages.en.params.logo]
+      logoText = "rob's blog"
+      logoHomeLink = "/"
