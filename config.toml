@@ -10,7 +10,6 @@ theme = 'hello-friend'
 [languages]
   [languages.en]
     title = "rob's blog"
-    subtitle = "tech rambles"
 
     [languages.en.params.logo]
       logoText = "rob's blog"

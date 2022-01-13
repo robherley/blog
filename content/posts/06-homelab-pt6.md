@@ -20,7 +20,7 @@ It's an extremely popular tool due to it's easy to learn declarative language (H
 
 ## Installing Terraform locally
 
-Terraform can be found on most package registries, and they have [binaries](https://www.terraform.io/downloads) as well. I'll be placing all of the configuration within a `terraform` directory on my homelab repository at [robherley/homelab](https://github.com/robherley/homelab/tree/main/ansible).
+Terraform can be found on most package managers, and they have [binaries](https://www.terraform.io/downloads) as well. I'll be placing all of the configuration within a `terraform` directory on my homelab repository at [robherley/homelab](https://github.com/robherley/homelab/tree/main/ansible).
 
 ## Creating an automation user
 
