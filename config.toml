@@ -1,4 +1,4 @@
-baseURL = 'http://blog.reb.gg/'
+baseURL = 'https://blog.reb.gg/'
 languageCode = 'en-us'
 theme = 'hello-friend'
 
