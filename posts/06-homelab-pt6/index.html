@@ -1,0 +1,270 @@
+<!doctype html><html lang=en>
+<head>
+<title>
+Homelab Part VI: Terraforming Proxmox ::
+rob's blog
+</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=description content="In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
+In this part, I&amp;rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.">
+<meta name=keywords content>
+<meta name=robots content="noodp">
+<link rel=canonical href=http://blog.reb.gg/posts/06-homelab-pt6/>
+<link rel=stylesheet href=http://blog.reb.gg/assets/style.css>
+<link rel=stylesheet href=http://blog.reb.gg/style.css>
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=http://blog.reb.gg/img/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=http://blog.reb.gg/img/favicon.png>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Italic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Regular.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Medium.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-MediumItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Bold.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-BoldItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Homelab Part VI: Terraforming Proxmox">
+<meta name=twitter:description content="In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
+In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.">
+<meta property="og:title" content="Homelab Part VI: Terraforming Proxmox">
+<meta property="og:description" content="In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
+In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://blog.reb.gg/posts/06-homelab-pt6/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2022-01-09T06:00:00-05:00">
+<meta property="article:modified_time" content="2022-01-09T06:00:00-05:00"><meta property="og:site_name" content="rob's blog">
+</head>
+<body class=dark-theme>
+<div class=container>
+<header class=header>
+<span class=header__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<span class=header__right>
+<span class=theme-toggle><svg class="theme-toggler" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 41c10.4934.0 19-8.5066 19-19C41 11.5066 32.4934 3 22 3 11.5066 3 3 11.5066 3 22s8.5066 19 19 19zM7 22C7 13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22z"/></svg>
+</span>
+</span>
+</span>
+</header>
+<div class=content>
+<div class=post>
+<h1 class=post-title>Homelab Part VI: Terraforming Proxmox</h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 6 min read</span>
+</div>
+<div class=post-content>
+<p>In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.</p>
+<p>In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as <a href=https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs>managing Cloudflare DNS records</a>.</p>
+<h2 id=what-is-terraform>What is Terraform?</h2>
+<p>Terraform is a powerful tool from HashiCorp, they explain it pretty well:</p>
+<blockquote>
+<p>Terraform is an open-source infrastructure as code software tool that provides a consistent CLI workflow to manage hundreds of cloud services. Terraform codifies cloud APIs into declarative configuration files.</p>
+</blockquote>
+<p>(When people mention IaC, 9 times out of 10 it&rsquo;s referring to Terraform.)</p>
+<p>It&rsquo;s an extremely popular tool due to it&rsquo;s easy to learn declarative language (HCL) and extensive <a href=https://registry.terraform.io/browse/providers>cloud provider support</a>. Plus, the entire deployment process is so simple, it&rsquo;s just two commands: <code>terraform plan</code> and <code>terraform apply</code>.</p>
+<h2 id=installing-terraform-locally>Installing Terraform locally</h2>
+<p>Terraform can be found on most package managers, and they have <a href=https://www.terraform.io/downloads>binaries</a> as well. I&rsquo;ll be placing all of the configuration within a <code>terraform</code> directory on my homelab repository at <a href=https://github.com/robherley/homelab/tree/main/ansible>robherley/homelab</a>.</p>
+<h2 id=creating-an-automation-user>Creating an automation user</h2>
+<p>Similar to Ansible, an API user for Proxmox will need to be created for Terraform.</p>
+<p>On one of the Proxmox nodes, make a <code>terraform</code> user, add it to the automation group, and set a password:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ pveum user add terraform@pve --groups automation --password &lt;some password&gt;
+</code></pre></div><h2 id=provider>Provider</h2>
+<p>There&rsquo;s a <a href=https://registry.terraform.io/providers/Telmate/proxmox/latest/docs>Proxmox provider</a> on the Terraform registry, this&rsquo;ll be the coupling for Terraform to communicate to the Proxmox API and understand how to reconcile the defined Terraform state.</p>
+<p>First, Terrafrom needs to know about the Proxmox provider.</p>
+<p>In <code>terrafrom/main.tf</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#a6e22e>terraform</span> {
+  <span style=color:#a6e22e>required_providers</span> {
+    <span style=color:#a6e22e>proxmox</span> = {
+      <span style=color:#a6e22e>source</span>  = <span style=color:#e6db74>&#34;telmate/proxmox&#34;</span>
+      <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;2.9.4&#34;</span>
+    }
+  }
+}
+</code></pre></div><p>Then, Terraform can be initialized and install the defined plugin:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ terraform init
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Initializing the backend...
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Initializing provider plugins...
+- Finding telmate/proxmox versions matching &#34;2.9.4&#34;...
+- Installing telmate/proxmox v2.9.4...
+- Installed telmate/proxmox v2.9.4 (self-signed, key ID A9EBBE091B35AFCE)
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>...
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Terraform has been successfully initialized!
+</code></pre></div><p>To actually connect Proxmox and Terraform, a provider needs be defined.</p>
+<p>In <code>terraform/providers.tf</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#66d9ef>provider</span> <span style=color:#e6db74>&#34;proxmox&#34;</span> {
+  <span style=color:#a6e22e>pm_parallel</span>     = <span style=color:#ae81ff>1</span>
+  <span style=color:#a6e22e>pm_tls_insecure</span> = <span style=color:#66d9ef>true</span>
+  <span style=color:#a6e22e>pm_debug</span>        = <span style=color:#66d9ef>true</span>
+  <span style=color:#a6e22e>pm_api_url</span>      = var.<span style=color:#a6e22e>pm_api_url</span>
+  <span style=color:#a6e22e>pm_password</span>     = var.<span style=color:#a6e22e>pm_password</span>
+  <span style=color:#a6e22e>pm_user</span>         = var.<span style=color:#a6e22e>pm_user</span>
+}
+</code></pre></div><p>This is the basic configuration for the provider, most is self explanatory. The <code>pm_parallel</code> command is set to only allow one Proxmox operation at a time.</p>
+<p>The <code>var.*</code> parameters are special, those&rsquo;ll be defined in a variables file.</p>
+<h2 id=variables>Variables</h2>
+<p>Terraform has input variables, which let you customize aspects of Terraform modules without altering the module&rsquo;s own source code. <a href=https://www.terraform.io/language/values/variables>Input variables</a> are declared in blocks within <code>.tf</code> files, and their actual values are in a <code>.tfvars</code> file.</p>
+<p>In <code>terraform/variables.tf</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;pm_api_url&#34;</span> {
+  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;https://192.168.1.100:8006/api2/json&#34;</span>
+}
+<span style=color:#66d9ef>
+</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;pm_user&#34;</span> {
+  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;terraform@pve&#34;</span>
+}
+<span style=color:#66d9ef>
+</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;pm_password&#34;</span> {
+  <span style=color:#a6e22e>sensitive</span> = <span style=color:#66d9ef>true</span>
+}
+<span style=color:#66d9ef>
+</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;vm_template_name&#34;</span> {
+  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;ubuntu-cloudinit-template&#34;</span>
+}
+<span style=color:#66d9ef>
+</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;lxc_template_name&#34;</span> {
+  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;ubuntu-ct-template&#34;</span>
+}
+</code></pre></div><p>Most of these variable blocks are using <code>default</code>, which makes the variable optional. This is just because I&rsquo;m lazy and I&rsquo;m just defining any public variables here. The <code>pm_password</code> var is <code>sensitive</code> (not shown in Terraform output) with no default, and it will be defined in a <code>.tfvars</code> file that won&rsquo;t be checked into git. As for the <code>*_template_name</code> variables, those&rsquo;ll be used in a bit.</p>
+<p>In <code>terraform/terraform.tfvars</code>, add the <code>terraform</code> Proxmox user password:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#a6e22e>pm_password</span> = <span style=color:#e6db74>&#34;correct-horse-battery-staple&#34;</span>
+</code></pre></div><p>Now, the actual resources can be defined. And like anything else in HCL, it&rsquo;s denoted in a block syntax.</p>
+<p>In <code>terraform/resources.tf</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;proxmox_vm_qemu&#34;</span> <span style=color:#e6db74>&#34;tf-test&#34;</span> {
+  <span style=color:#a6e22e>name</span>        = <span style=color:#e6db74>&#34;tf-test&#34;</span>
+  <span style=color:#a6e22e>target_node</span> = <span style=color:#e6db74>&#34;r720&#34;</span>
+  <span style=color:#a6e22e>clone</span>       = var.<span style=color:#a6e22e>vm_template_name</span>
+
+  <span style=color:#a6e22e>cores</span>       = <span style=color:#ae81ff>4</span>
+  <span style=color:#a6e22e>memory</span>      = <span style=color:#ae81ff>8192</span>
+  <span style=color:#a6e22e>agent</span>       = <span style=color:#ae81ff>1</span>
+}
+</code></pre></div><p>This will create a VM with the name <code>tf-test</code>, which will be a full clone of <code>var.vm_template_name</code> that was defined in <code>variables.tf</code>. Unfortunately unlike the <code>qm clone</code> command, the attributes of the VM are not carried over in this provider&rsquo;s Terraform clone (it&rsquo;s programmed to use defaults instead) so the bare minimal parameters are specified.</p>
+<p>💡 For explanations of all the parameters, see the provider&rsquo;s <a href=https://registry.terraform.io/providers/Telmate/proxmox/latest/docs/resources/vm_qemu#argument-reference>argument reference</a>.</p>
+<p>To plan the change, run <code>terraform plan</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ $ terraform plan
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following
+symbols:
+  + create
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Terraform will perform the following actions:
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>  # proxmox_vm_qemu.tf-test will be created
+  + resource &#34;proxmox_vm_qemu&#34; &#34;tf-test&#34; {
+      + additional_wait           = 0
+      + agent                     = 1
+      + automatic_reboot          = true
+      + balloon                   = 0
+      + bios                      = &#34;seabios&#34;
+      + boot                      = &#34;c&#34;
+      + bootdisk                  = (known after apply)
+      + clone                     = &#34;ubuntu-cloudinit-template&#34;
+      + clone_wait                = 0
+      + cores                     = 4
+      + cpu                       = &#34;host&#34;
+      + default_ipv4_address      = (known after apply)
+      + define_connection_info    = true
+      + force_create              = false
+      + full_clone                = true
+      + guest_agent_ready_timeout = 100
+      + hotplug                   = &#34;network,disk,usb&#34;
+      + id                        = (known after apply)
+      + kvm                       = true
+      + memory                    = 8192
+      + name                      = &#34;tf-test&#34;
+      + nameserver                = (known after apply)
+      + numa                      = false
+      + onboot                    = false
+      + oncreate                  = true
+      + preprovision              = true
+      + reboot_required           = (known after apply)
+      + scsihw                    = (known after apply)
+      + searchdomain              = (known after apply)
+      + sockets                   = 1
+      + ssh_host                  = (known after apply)
+      + ssh_port                  = (known after apply)
+      + tablet                    = true
+      + target_node               = &#34;r720&#34;
+      + unused_disk               = (known after apply)
+      + vcpus                     = 0
+      + vlan                      = -1
+      + vmid                      = (known after apply)
+    }
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>...
+</code></pre></div><p>Once the plan is confirmed to be okay, it can be applied:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ $ terraform apply
+...
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>proxmox_vm_qemu.tf-test: Creating...
+proxmox_vm_qemu.tf-test: Still creating... [10s elapsed]
+proxmox_vm_qemu.tf-test: Still creating... [20s elapsed]
+proxmox_vm_qemu.tf-test: Still creating... [30s elapsed]
+proxmox_vm_qemu.tf-test: Still creating... [40s elapsed]
+proxmox_vm_qemu.tf-test: Still creating... [50s elapsed]
+proxmox_vm_qemu.tf-test: Still creating... [1m0s elapsed]
+proxmox_vm_qemu.tf-test: Creation complete after 1m3s [id=r720/qemu/101]
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+</code></pre></div><p>Now to double check with Ansible:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ ansible proxmox_all_running -m ping
+tf-test | SUCCESS =&gt; {
+    &#34;ansible_facts&#34;: {
+        &#34;discovered_interpreter_python&#34;: &#34;/usr/bin/python3&#34;
+    },
+    &#34;changed&#34;: false,
+    &#34;ping&#34;: &#34;pong&#34;
+}
+</code></pre></div><p>Perfect! The homelab infrastructure is now fully declarative and automated.</p>
+<p>❗<strong>Note:</strong> during testing, I have found the provider to be flaky at points when determining if the VM or LXC is created or not. Apparently this is a <a href=https://github.com/Telmate/terraform-provider-proxmox/issues/480#issuecomment-1005949219>known issue</a> with the provider, due to a bug when interacting with Proxmox conf locks. Either the provider can be downgraded to version <code>2.8.0</code> or existing resources can be imported into Terraform&rsquo;s state like so:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ # terraform import &lt;resource type&gt;.&lt;resource name&gt; &lt;node&gt;/&lt;type&gt;/&lt;vmid&gt;
+rob@macbook$ terraform import proxmox_vm_qemu.tf-test r720/qemu/101
+</code></pre></div><h2 id=next>Next</h2>
+<p>Well, that&rsquo;s it for the homelab series! I think six parts is enough to conclude. The homelab is now a fully operational virtualization cluster with redundant ZFS (and NFS) storage, VM/LXC templates, automated with Ansible and provisioned via IaC with Terraform. There <em>may</em> be separate one-offs for TrueNAS, Kubernetes or OpenShift clusters, but no promises. 😉 Thanks for tagging along!</p>
+</div>
+<div class=pagination>
+<div class=pagination__title>
+<span class=pagination__title-h>Read other posts</span>
+<hr>
+</div>
+<div class=pagination__buttons>
+<span class="button next">
+<a href=http://blog.reb.gg/posts/05-homelab-pt5/>
+<span class=button__text>Homelab Part V: Proxmox VMs and cloud-init</span>
+<span class=button__icon>→</span>
+</a>
+</span>
+</div>
+</div>
+</div>
+</div>
+<footer class=footer>
+<div class=footer__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<div class=copyright>
+<span>© 2022 Powered by
+<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a></span>
+<span>Theme created by
+<a href=https://twitter.com/panr target=_blank rel=noopener>panr</a></span>
+</div>
+</div>
+</footer>
+<script src=http://blog.reb.gg/assets/main.js></script>
+<script src=http://blog.reb.gg/assets/prism.js></script>
+</div>
+</body>
+</html>

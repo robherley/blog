@@ -1,0 +1,161 @@
+<!doctype html><html lang=en>
+<head>
+<meta name=generator content="Hugo 0.92.0">
+<title>
+rob's blog
+</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=description content>
+<meta name=keywords content>
+<meta name=robots content="noodp">
+<link rel=canonical href=http://blog.reb.gg/>
+<link rel=stylesheet href=http://blog.reb.gg/assets/style.css>
+<link rel=stylesheet href=http://blog.reb.gg/style.css>
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=http://blog.reb.gg/img/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=http://blog.reb.gg/img/favicon.png>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Italic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Regular.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Medium.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-MediumItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Bold.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-BoldItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="rob's blog">
+<meta name=twitter:description content>
+<meta property="og:title" content="rob's blog">
+<meta property="og:description" content>
+<meta property="og:type" content="website">
+<meta property="og:url" content="http://blog.reb.gg/"><meta property="og:site_name" content="rob's blog">
+<link rel=alternate type=application/rss+xml href=/index.xml title="rob's blog">
+</head>
+<body class=dark-theme>
+<div class=container>
+<header class=header>
+<span class=header__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<span class=header__right>
+<span class=theme-toggle><svg class="theme-toggler" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 41c10.4934.0 19-8.5066 19-19C41 11.5066 32.4934 3 22 3 11.5066 3 3 11.5066 3 22s8.5066 19 19 19zM7 22C7 13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22z"/></svg>
+</span>
+</span>
+</span>
+</header>
+<div class=content>
+<div class=posts>
+<div class="post on-list">
+<h1 class=post-title><a href=http://blog.reb.gg/posts/06-homelab-pt6/>Homelab Part VI: Terraforming Proxmox</a></h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 6 min read</span>
+</div>
+<div class=post-content>
+In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
+In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.
+</div>
+<div><a class="read-more button" href=/posts/06-homelab-pt6/>Read more →</a></div>
+</div>
+<div class="post on-list">
+<h1 class=post-title><a href=http://blog.reb.gg/posts/05-homelab-pt5/>Homelab Part V: Proxmox VMs and cloud-init</a></h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 4 min read</span>
+</div>
+<div class=post-content>
+In the previous part of this series, I setup a Proxmox dynamic inventory with Ansible and created a basic LXC template for creating containers that were automation ready.
+In this part, I&rsquo;ll setup some cloud-init configs to initalize VMs in a state where they can automatically be managed by Ansible.
+Cloud Images While it&rsquo;s possible to prepare custom base images for cloud-init, many Linux distributions already provide ready-to-use images, such as Ubuntu, Fedora, Debian, etc.
+</div>
+<div><a class="read-more button" href=/posts/05-homelab-pt5/>Read more →</a></div>
+</div>
+<div class="post on-list">
+<h1 class=post-title><a href=http://blog.reb.gg/posts/04-homelab-pt4/>Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates</a></h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 7 min read</span>
+</div>
+<div class=post-content>
+In the previous part of this series, I configured Ansible and made some basic playbooks for the homelab management. Eventually, I&rsquo;ll be deploying a plethora of VMs and containers, but managing a gigantic inventory every time a guest is spun up/down would be a hassle. Fortunately, there are community plugins for Ansible that allow the use of a Proxmox cluster as a dynamic inventory.
+In this part, I&rsquo;ll setup some Proxmox API users for automation, setup a dynamic inventory for Proxmox guests and prepare a template for Linux containers.
+</div>
+<div><a class="read-more button" href=/posts/04-homelab-pt4/>Read more →</a></div>
+</div>
+<div class="post on-list">
+<h1 class=post-title><a href=http://blog.reb.gg/posts/03-homelab-pt3/>Homelab Part III: Automation with Ansible and Hardening Access</a></h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 8 min read</span>
+</div>
+<div class=post-content>
+In the previous part of this series, I created a two-node Proxmox cluster along with redundant (ZFS) and shared (NFS) storage. In this part, I&rsquo;ll go over how to connect to the host machines with Ansible, harden access, and setup some minor user management. This&rsquo;ll all be through an automatic, idempotent configuration process.
+What is Ansible? Ansible is a great automation platform from Red Hat (they bought AnsibleWorks), and it&rsquo;s an extremely popular tool making it a great learning exercise for the homelab.
+</div>
+<div><a class="read-more button" href=/posts/03-homelab-pt3/>Read more →</a></div>
+</div>
+<div class="post on-list">
+<h1 class=post-title><a href=http://blog.reb.gg/posts/02-homelab-pt2/>Homelab Part II: Proxmox cluster, ZFS and NFS</a></h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 6 min read</span>
+</div>
+<div class=post-content>
+In the previous part of this series, I assembled (and modified) hardware and setup the base operating systems on the machines. In this part, I&rsquo;ll go over how to connect the Proxmox nodes together, add a quorum device and provision some storage with ZFS. Also one of the ZFS drives will be configured with NFS to share container templates, ISOs, and snippets.
+Cluster If you only have one machine in your homelab, you can skip this step.
+</div>
+<div><a class="read-more button" href=/posts/02-homelab-pt2/>Read more →</a></div>
+</div>
+<div class="post on-list">
+<h1 class=post-title><a href=http://blog.reb.gg/posts/01-homelab-pt1/>Homelab Part I: Intro, Hardware and Proxmox install</a></h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 6 min read</span>
+</div>
+<div class=post-content>
+👋 Hey y&rsquo;all, welcome to the start of my homelab (or, the latest iteration of it). I&rsquo;m documenting my homelab setup as a helpful guide for others to learn, detailing some of the annoying issues I encountered and some of the duct tape solutions. These are also backup instructions for when I inevitably scrap this homelab, rebuild, and forget how I did everything.
+This series will be centered around the setup and automation of a Promox cluster comprised of three very different machines.
+</div>
+<div><a class="read-more button" href=/posts/01-homelab-pt1/>Read more →</a></div>
+</div>
+<div class=pagination>
+<div class=pagination__buttons>
+</div>
+</div>
+</div>
+</div>
+<footer class=footer>
+<div class=footer__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<div class=copyright>
+<span>© 2022 Powered by
+<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a></span>
+<span>Theme created by
+<a href=https://twitter.com/panr target=_blank rel=noopener>panr</a></span>
+</div>
+</div>
+</footer>
+<script src=http://blog.reb.gg/assets/main.js></script>
+<script src=http://blog.reb.gg/assets/prism.js></script>
+</div>
+</body>
+</html>

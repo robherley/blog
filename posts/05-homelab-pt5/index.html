@@ -1,0 +1,192 @@
+<!doctype html><html lang=en>
+<head>
+<title>
+Homelab Part V: Proxmox VMs and cloud-init ::
+rob's blog
+</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=description content="In the previous part of this series, I setup a Proxmox dynamic inventory with Ansible and created a basic LXC template for creating containers that were automation ready.
+In this part, I&amp;rsquo;ll setup some cloud-init configs to initalize VMs in a state where they can automatically be managed by Ansible.
+Cloud Images While it&amp;rsquo;s possible to prepare custom base images for cloud-init, many Linux distributions already provide ready-to-use images, such as Ubuntu, Fedora, Debian, etc.">
+<meta name=keywords content>
+<meta name=robots content="noodp">
+<link rel=canonical href=http://blog.reb.gg/posts/05-homelab-pt5/>
+<link rel=stylesheet href=http://blog.reb.gg/assets/style.css>
+<link rel=stylesheet href=http://blog.reb.gg/style.css>
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=http://blog.reb.gg/img/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=http://blog.reb.gg/img/favicon.png>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Italic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Regular.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Medium.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-MediumItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Bold.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-BoldItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Homelab Part V: Proxmox VMs and cloud-init">
+<meta name=twitter:description content="In the previous part of this series, I setup a Proxmox dynamic inventory with Ansible and created a basic LXC template for creating containers that were automation ready.
+In this part, I&rsquo;ll setup some cloud-init configs to initalize VMs in a state where they can automatically be managed by Ansible.
+Cloud Images While it&rsquo;s possible to prepare custom base images for cloud-init, many Linux distributions already provide ready-to-use images, such as Ubuntu, Fedora, Debian, etc.">
+<meta property="og:title" content="Homelab Part V: Proxmox VMs and cloud-init">
+<meta property="og:description" content="In the previous part of this series, I setup a Proxmox dynamic inventory with Ansible and created a basic LXC template for creating containers that were automation ready.
+In this part, I&rsquo;ll setup some cloud-init configs to initalize VMs in a state where they can automatically be managed by Ansible.
+Cloud Images While it&rsquo;s possible to prepare custom base images for cloud-init, many Linux distributions already provide ready-to-use images, such as Ubuntu, Fedora, Debian, etc.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://blog.reb.gg/posts/05-homelab-pt5/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2022-01-09T05:00:00-05:00">
+<meta property="article:modified_time" content="2022-01-09T05:00:00-05:00"><meta property="og:site_name" content="rob's blog">
+</head>
+<body class=dark-theme>
+<div class=container>
+<header class=header>
+<span class=header__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<span class=header__right>
+<span class=theme-toggle><svg class="theme-toggler" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 41c10.4934.0 19-8.5066 19-19C41 11.5066 32.4934 3 22 3 11.5066 3 3 11.5066 3 22s8.5066 19 19 19zM7 22C7 13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22z"/></svg>
+</span>
+</span>
+</span>
+</header>
+<div class=content>
+<div class=post>
+<h1 class=post-title>Homelab Part V: Proxmox VMs and cloud-init</h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 4 min read</span>
+</div>
+<div class=post-content>
+<p>In the previous part of this series, I setup a Proxmox dynamic inventory with Ansible and created a basic LXC template for creating containers that were automation ready.</p>
+<p>In this part, I&rsquo;ll setup some <a href=https://cloudinit.readthedocs.io/en/latest/>cloud-init</a> configs to initalize VMs in a state where they can automatically be managed by Ansible.</p>
+<h2 id=cloud-images>Cloud Images</h2>
+<p>While it&rsquo;s possible to prepare custom base images for cloud-init, many Linux distributions already provide ready-to-use images, such as <a href=https://cloud-images.ubuntu.com>Ubuntu</a>, <a href=https://alt.fedoraproject.org/cloud/>Fedora</a>, <a href=https://cloud.debian.org/images/cloud/>Debian</a>, etc. This allows for a (mostly) unified configuration that can work across distros and even some *BSD variants.</p>
+<p>Pull a cloud image to storage:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ cd /tmp
+root@r720$ wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+</code></pre></div><p>Alternatively, the <a href=https://cloudinit.readthedocs.io/en/latest/topics/cli.html#cli-interface><code>cloud-init</code></a> CLI can be used to build custom images.</p>
+<h2 id=template-vm>Template VM</h2>
+<p>Similar to the process for LXC, image templates will be used for VM creation. But unlike containers, it is not necessary to boot into the VM and manually tweak the environment. The first-time setup can all be done with cloud-init. The <a href=https://pve.proxmox.com/wiki/Cloud-Init_Support>Proxmox wiki</a> has some examples, although the documentation is a bit sparse.</p>
+<p>First, create the VM using the <a href=https://pve.proxmox.com/pve-docs/qm.1.html><code>qm</code></a> CLI:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm create 2000 \
+--name ubuntu-cloudinit-template \
+--net0 virtio,bridge=vmbr0 \
+--memory 8192 \
+--cores 4
+</code></pre></div><p>Import the cloud image downloaded earlier (or use a custom one), attach it to the VM, and resize as necessary:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm importdisk 2000 /tmp/focal-server-cloudimg-amd64.img ssd-mirror --format qcow2
+root@r720$ qm set 2000 --scsihw virtio-scsi-pci --scsi0 ssd-mirror:vm-2000-disk-0
+root@r720$ qm resize 2000 scsi0 +32G # increase it by 32GB
+</code></pre></div><p>Add a CDROM drive for cloud-init, and restrict BIOS to boot from disk only to speed up the boot process:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm set 2000 --ide2 ssd-mirror:cloudinit
+root@r720$ qm set 2000 --boot c --bootdisk scsi0
+</code></pre></div><p>It is recommended to attach a serial console to the VM as well:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm set 2000 --serial0 socket --vga serial0
+</code></pre></div><p>And also enable the guest agent which will be installed later by cloud-init:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720 qm set 2000 --agent 1
+</code></pre></div><h2 id=cloud-config>Cloud config</h2>
+<p>With the VM ready, it&rsquo;s time to tweak the cloud config. Proxmox autogenerates configs for the <a href=https://cloudinit.readthedocs.io/en/latest/topics/examples.html><code>user</code></a>, <a href=https://cloudinit.readthedocs.io/en/latest/topics/network-config.html><code>network</code></a>, and <a href=https://cloudinit.readthedocs.io/en/latest/topics/instancedata.html><code>meta</code></a> types, they can be inspected like so:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm cloudinit dump 2000 user # or `network` or `meta`
+#cloud-config
+hostname: ubuntu-cloudinit-template
+manage_etc_hosts: true
+chpasswd:
+  expire: False
+users:
+  - default
+package_upgrade: true
+</code></pre></div><p>In my opinion, the way Proxmox template cloud config is a bit backwards. Instead of autogenerating <a href=https://cloudinit.readthedocs.io/en/latest/topics/vendordata.html><code>vendor</code></a> data, Proxmox uses the <code>user</code> data. This is slightly annoying because if a custom <code>user</code> configuration YAML is attached, it is impossible to have the config autoassign the hostname based on the VM name. Unfortunately, to change the default configuration template it is relatively limited. For any complicated cloud config, I&rsquo;ll abuse <code>vendor</code> instead. But, it is worth noting that <code>user</code> config takes precedence over <code>vendor</code>, so any values defined in <code>user</code> will not be overwritten.</p>
+<p>💡 Custom cloud configs files are stored under the <code>snippets</code> type.</p>
+<p>In <code>/rusty-z2/pve/snippets/ubuntu-qemu.yaml</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#75715e>#cloud-config</span>
+<span style=color:#f92672>user</span>: <span style=color:#ae81ff>rob</span>
+<span style=color:#f92672>password</span>: <span style=color:#ae81ff>$6$himalayan$E.K7G4g7NoIW69HLpmK1QDU1JMN4aaSYPOOGX1SwoSl.uqr64JruCEeDH0nLi9CxJR1/2HGTnTDVKfCC2ubub1</span>
+<span style=color:#f92672>ssh_import_id</span>:
+  - <span style=color:#ae81ff>gh:robherley</span>
+<span style=color:#f92672>packages</span>:
+  - <span style=color:#ae81ff>qemu-guest-agent</span>
+</code></pre></div><p>This will be doing mostly the same prep work as the container process. It will:</p>
+<ul>
+<li>Overwrite the default user&rsquo;s name as <code>rob</code>. This user will also implicitly get an entry in <code>/etc/sudoers.d/90-cloud-init-users</code> for passwordless sudo.</li>
+<li>Run <code>ssh-import-id</code> to pull public keys from GitHub.</li>
+<li>Add <code>qemu-guest-agent</code>, a helper daemon used to exchange information between the host and guest.</li>
+</ul>
+<p>Add the <code>vendor</code> cloud config to the template VM:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm set 2000 --cicustom &#34;vendor=rusty-dir:snippets/ubuntu-qemu.yaml&#34;
+</code></pre></div><p>The network config also needs a slight tweak to use DHCP:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm set 2000 --ipconfig0 ip=dhcp
+</code></pre></div><p>And finally, set the VM to be a template:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm template 2000
+</code></pre></div><p>To test, just clone some VMs from the template:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ qm clone 2000 101 --full --name thing1
+root@r720$ qm clone 2000 102 --full --name thing2
+root@r720$ qm start 101
+root@r720$ qm start 102
+</code></pre></div><p>These take a bit longer than the containers to spin up, and they need to run through the cloud-init process after boot. After waiting a while, they should be reachable:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ ansible proxmox_all_running -m ping
+thing2 | SUCCESS =&gt; {
+    &#34;ansible_facts&#34;: {
+        &#34;discovered_interpreter_python&#34;: &#34;/usr/bin/python3&#34;
+    },
+    &#34;changed&#34;: false,
+    &#34;ping&#34;: &#34;pong&#34;
+}
+thing1 | SUCCESS =&gt; {
+    &#34;ansible_facts&#34;: {
+        &#34;discovered_interpreter_python&#34;: &#34;/usr/bin/python3&#34;
+    },
+    &#34;changed&#34;: false,
+    &#34;ping&#34;: &#34;pong&#34;
+}
+</code></pre></div><p><strong>Note:</strong> For the qemu-guest-agent to be detected by Proxmox, the VM needs to be stopped by Proxmox (or <code>qm</code> CLI) and restarted.</p>
+<h2 id=next>Next</h2>
+<p>Automation-ready virtual machine and containers can now be programmatically created. Using the CLI can be a bit of a pain and the web console is fine for one-offs, but this process can be improved with a wonderful tool from HashiCorp called Terraform. In the next part of the series, Terraform will be used as IaC to provision the guests from Proxmox.</p>
+</div>
+<div class=pagination>
+<div class=pagination__title>
+<span class=pagination__title-h>Read other posts</span>
+<hr>
+</div>
+<div class=pagination__buttons>
+<span class="button previous">
+<a href=http://blog.reb.gg/posts/06-homelab-pt6/>
+<span class=button__icon>←</span>
+<span class=button__text>Homelab Part VI: Terraforming Proxmox</span>
+</a>
+</span>
+<span class="button next">
+<a href=http://blog.reb.gg/posts/04-homelab-pt4/>
+<span class=button__text>Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates</span>
+<span class=button__icon>→</span>
+</a>
+</span>
+</div>
+</div>
+</div>
+</div>
+<footer class=footer>
+<div class=footer__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<div class=copyright>
+<span>© 2022 Powered by
+<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a></span>
+<span>Theme created by
+<a href=https://twitter.com/panr target=_blank rel=noopener>panr</a></span>
+</div>
+</div>
+</footer>
+<script src=http://blog.reb.gg/assets/main.js></script>
+<script src=http://blog.reb.gg/assets/prism.js></script>
+</div>
+</body>
+</html>

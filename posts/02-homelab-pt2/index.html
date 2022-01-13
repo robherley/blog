@@ -1,0 +1,287 @@
+<!doctype html><html lang=en>
+<head>
+<title>
+Homelab Part II: Proxmox cluster, ZFS and NFS ::
+rob's blog
+</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=description content="In the previous part of this series, I assembled (and modified) hardware and setup the base operating systems on the machines. In this part, I&amp;rsquo;ll go over how to connect the Proxmox nodes together, add a quorum device and provision some storage with ZFS. Also one of the ZFS drives will be configured with NFS to share container templates, ISOs, and snippets.
+Cluster If you only have one machine in your homelab, you can skip this step.">
+<meta name=keywords content>
+<meta name=robots content="noodp">
+<link rel=canonical href=http://blog.reb.gg/posts/02-homelab-pt2/>
+<link rel=stylesheet href=http://blog.reb.gg/assets/style.css>
+<link rel=stylesheet href=http://blog.reb.gg/style.css>
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=http://blog.reb.gg/img/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=http://blog.reb.gg/img/favicon.png>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Italic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Regular.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Medium.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-MediumItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-Bold.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<link href=http://blog.reb.gg/assets/fonts/Inter-BoldItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Homelab Part II: Proxmox cluster, ZFS and NFS">
+<meta name=twitter:description content="In the previous part of this series, I assembled (and modified) hardware and setup the base operating systems on the machines. In this part, I&rsquo;ll go over how to connect the Proxmox nodes together, add a quorum device and provision some storage with ZFS. Also one of the ZFS drives will be configured with NFS to share container templates, ISOs, and snippets.
+Cluster If you only have one machine in your homelab, you can skip this step.">
+<meta property="og:title" content="Homelab Part II: Proxmox cluster, ZFS and NFS">
+<meta property="og:description" content="In the previous part of this series, I assembled (and modified) hardware and setup the base operating systems on the machines. In this part, I&rsquo;ll go over how to connect the Proxmox nodes together, add a quorum device and provision some storage with ZFS. Also one of the ZFS drives will be configured with NFS to share container templates, ISOs, and snippets.
+Cluster If you only have one machine in your homelab, you can skip this step.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://blog.reb.gg/posts/02-homelab-pt2/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2022-01-09T02:00:00-05:00">
+<meta property="article:modified_time" content="2022-01-09T02:00:00-05:00"><meta property="og:site_name" content="rob's blog">
+</head>
+<body class=dark-theme>
+<div class=container>
+<header class=header>
+<span class=header__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<span class=header__right>
+<span class=theme-toggle><svg class="theme-toggler" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 41c10.4934.0 19-8.5066 19-19C41 11.5066 32.4934 3 22 3 11.5066 3 3 11.5066 3 22s8.5066 19 19 19zM7 22C7 13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22z"/></svg>
+</span>
+</span>
+</span>
+</header>
+<div class=content>
+<div class=post>
+<h1 class=post-title>Homelab Part II: Proxmox cluster, ZFS and NFS</h1>
+<div class=post-meta>
+<span class=post-date>
+2022-01-09
+</span>
+<span class=post-read-time>— 6 min read</span>
+</div>
+<div class=post-content>
+<p>In the previous part of this series, I assembled (and modified) hardware and setup the base operating systems on the machines. In this part, I&rsquo;ll go over how to connect the Proxmox nodes together, add a quorum device and provision some storage with ZFS. Also one of the ZFS drives will be configured with NFS to share container templates, ISOs, and snippets.</p>
+<h2 id=cluster>Cluster</h2>
+<p>If you only have one machine in your homelab, you can skip this step.</p>
+<p>To create a cluster, pick one node to initialize it on:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ pvecm create rob-lab
+</code></pre></div><p>And now it&rsquo;s a one node Proxmox cluster.</p>
+<p>Then <strong>on the second node to add</strong>, join via the <strong>first node&rsquo;s IP address</strong>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@nuc$ pvecm add 192.168.1.100
+</code></pre></div><p>Now it&rsquo;s a two-node cluster:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@nuc$ pvecm status
+Cluster information
+-------------------
+Name:             rob-lab
+Config Version:   2
+Transport:        knet
+Secure auth:      on
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Quorum information
+------------------
+Date:             Thu Dec 30 20:22:25 2021
+Quorum provider:  corosync_votequorum
+Nodes:            2
+Node ID:          0x00000002
+Ring ID:          1.9
+Quorate:          Yes
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Votequorum information
+----------------------
+Expected votes:   2
+Highest expected: 2
+Total votes:      2
+Quorum:           2
+Flags:            Quorate
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Membership information
+----------------------
+    Nodeid      Votes Name
+0x00000001          1 192.168.1.100
+0x00000002          1 192.168.1.200 (local)
+</code></pre></div><p>Under the hood, Proxmox uses the <a href=https://github.com/corosync/corosync>corosync</a> cluster engine that uses a voting system with each node in the cluster. In an ideal scenario, there would be an odd number of nodes, but since I only have two machines I&rsquo;m going to setup the Raspberry Pi as a voter so that the cluster can properly reach quorum. The Pi is going to be configured as a corosync <a href=https://github.com/corosync/corosync-qdevice>qdevice</a>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>pi@piprimary$ sudo apt install corosync-qnetd corosync-qdevice
+</code></pre></div><p>Unfortunately the qdevice setup will require password auth via SSH to the root user. So the Pi&rsquo;s SSH configuration will temporarily be changed to allow root login via SSH and a root password must be set:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>pi@piprimary$ sudo su -
+root@piprimary$ passwd
+New password:
+Retype new password:
+passwd: password updated successfully
+root@piprimary$ vi /etc/ssh/sshd_config # Set PermitRootLogin to &#34;yes&#34;
+root@piprimary$ systemctl restart sshd
+</code></pre></div><p>The qdevice package needs to be installed on each of the Proxmox nodes as well:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ apt install corosync-qdevice
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@nuc$ apt install corosync-qdevice
+</code></pre></div><p>Adding the Pi as a qdevice to the cluster is slightly different from adding a normal node. On an already existing cluster node use <code>pvecm qdevice setup</code> to add the Pi by IP:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ pvecm qdevice setup 192.168.1.254
+</code></pre></div><p>Now, it&rsquo;s a two node cluster but with three members and three expected quorum votes:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ pvecm status
+Cluster information
+-------------------
+Name:             rob-lab
+Config Version:   3
+Transport:        knet
+Secure auth:      on
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Quorum information
+------------------
+Date:             Fri Dec 31 12:41:02 2021
+Quorum provider:  corosync_votequorum
+Nodes:            2
+Node ID:          0x00000001
+Ring ID:          1.9
+Quorate:          Yes
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Votequorum information
+----------------------
+Expected votes:   3
+Highest expected: 3
+Total votes:      3
+Quorum:           2
+Flags:            Quorate Qdevice
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>Membership information
+----------------------
+    Nodeid      Votes    Qdevice Name
+0x00000001          1    A,V,NMW 192.168.1.100 (local)
+0x00000002          1    A,V,NMW 192.168.1.200
+0x00000000          1            Qdevice
+</code></pre></div><p>Back on the Pi, disable SSH root login:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@piprimary$ vi /etc/ssh/sshd_config # Set PermitRootLogin to &#34;no&#34;
+root@piprimary$ systemctl restart sshd
+</code></pre></div><h2 id=redundancy-with-zfs>Redundancy with ZFS</h2>
+<p>While the NUC will just be using the single SSD for the host OS and all workload storage, the Poweredge has a few drives that need to be configured with ZFS.</p>
+<p>ZFS filesystems are built on virtual storage pools. For now, there will be two pools, <code>ssd-mirror</code> and <code>rusty-z2</code>, as mentioned in the first post in this series. The third pool, <code>wolves-z</code> will be handled later, since the entire controller connecting the drives will be passed through to a VM.</p>
+<p>Create a mirrored pool of two drives called <code>ssd-mirror</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ zpool create ssd-mirror mirror /dev/sdo /dev/sdq
+</code></pre></div><p>Create a RAID-z2 pool of 11 drives called <code>rusty-z2</code> (the <code>/dev/</code> can be omitted):</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ zpool create rusty-z2 raidz2 sde sdf sdg sdh sdi sdj sdk sdl sdm sdn sdp
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ zfs list
+NAME         USED  AVAIL     REFER  MOUNTPOINT
+rusty-z2    1.10M  7.49T      219K  /rusty-z2
+ssd-mirror   528K   899G       96K  /ssd-mirror
+root@r720$ zpool status
+  pool: rusty-z2
+ state: ONLINE
+config:
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>  NAME                           STATE     READ WRITE CKSUM
+  rusty-z2                       ONLINE       0     0     0
+    raidz2-0                     ONLINE       0     0     0
+      ata-ST91000640NS_9XG3QG5J  ONLINE       0     0     0
+      ata-ST91000640NS_9XG3WGKZ  ONLINE       0     0     0
+      ata-ST91000640NS_9XG3VHK5  ONLINE       0     0     0
+      ata-ST91000640NS_9XG3TRW7  ONLINE       0     0     0
+      scsi-35000c50083a28083     ONLINE       0     0     0
+      scsi-35000c50083a0395b     ONLINE       0     0     0
+      ata-ST91000640NS_9XG3WGCA  ONLINE       0     0     0
+      ata-ST91000640NS_9XG3V6JB  ONLINE       0     0     0
+      ata-ST91000640NS_9XG40C6A  ONLINE       0     0     0
+      ata-ST91000640NS_9XG40JQH  ONLINE       0     0     0
+      ata-ST91000640NS_9XG3VAEC  ONLINE       0     0     0
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>errors: No known data errors
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>  pool: ssd-mirror
+ state: ONLINE
+config:
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>  NAME                                  STATE     READ WRITE CKSUM
+  ssd-mirror                            ONLINE       0     0     0
+    mirror-0                            ONLINE       0     0     0
+      ata-CT1000MX500SSD1_2147E5E74EEA  ONLINE       0     0     0
+      ata-CT1000MX500SSD1_2147E5E73F89  ONLINE       0     0     0
+<span style=color:#960050;background-color:#1e0010>
+</span><span style=color:#960050;background-color:#1e0010></span>errors: No known data errors
+</code></pre></div><p>To make these available to Proxmox, they&rsquo;ll need to be added manually to <code>/etc/pve/storage.cfg</code> like so:</p>
+<pre tabindex=0><code>zfspool: rusty-z2
+  pool rusty-z2
+  content images,rootdir
+  mountpoint /rusty-z2
+  nodes r720
+
+zfspool: ssd-mirror
+  pool ssd-mirror
+  content images,rootdir
+  mountpoint /ssd-mirror
+  nodes r720
+</code></pre><p>Alternatively, this can be also done in Proxmox&rsquo;s web console under Node > Disks > ZFS > Create and it will create the zpool and storage entry all together. This is way easier than using the CLI but it&rsquo;s good to know how this is all happening behind the pretty web console.</p>
+<p>Each <a href=https://pve.proxmox.com/wiki/Storage>storage type</a> in Proxmox has restrictions to the type of content it can hold. For instance, the <code>zfspool</code> type can only hold <code>images</code> or <code>rootdir</code>, which are VM disk images and container directories. For the <code>ssd-mirror</code> type this is perfect, because it will be for those exact workloads. For the <code>rusty-z2</code> pool, we&rsquo;ll need a different storage type.</p>
+<p>To do so, initialize a new ZFS dataset called <code>pve</code> under <code>rusty-z2</code>:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ zfs create rusty-z2/pve
+</code></pre></div><p>Again, to use this in Proxmox it must be added to <code>/etc/pve/storage.cfg</code>:</p>
+<pre tabindex=0><code>dir: rusty-dir
+  path /rusty-z2/pve
+  content backup,snippets,iso,vztmpl
+  nodes r720
+  prune-backups keep-all=1
+</code></pre><p>Notice the <code>dir</code> type with a content of <code>backup,snippets,iso,vztmpl</code>. Once this is done, all of the storage will appear in the web console under the r720 node:</p>
+<p><img src=/homelab/pve_r720_storage.png alt="r720 storage in proxmox console"></p>
+<h2 id=zfs-shared-over-nfs>ZFS shared over NFS</h2>
+<p>It would be really convient if the NUC could access the <code>rusty-dir</code> storage, so that it could use that redundant storage for backups and share ISOs, container templates, snippets, etc. With ZFS and NFS this is dead simple.</p>
+<p>Add NFS server:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ apt install nfs-kernel-server
+</code></pre></div><p>Set the dataset to share NFS:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ zfs set sharenfs=&#39;rw&#39; rusty-z2/pve
+</code></pre></div><p>On the NUC node, add the following to <code>/etc/pve/storage.cfg</code>:</p>
+<pre tabindex=0><code>nfs: rusty-nfs
+  export /rusty-z2/pve
+  path /mnt/pve/rusty-nfs
+  server 192.168.1.100
+  content backup,snippets,iso,vztmpl
+  nodes nuc
+  prune-backups keep-all=1
+</code></pre><p>In the Proxmox console, the new NFS storage should appear under the NUC node:</p>
+<p><img src=/homelab/pve_nuc_storage.png alt="nuc storage in proxmox console"></p>
+<p>As a quick test, on the r720 node, download a container template:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ pveam download rusty-dir ubuntu-20.04-standard_20.04-1_amd64.tar.gz
+</code></pre></div><p>And on the NUC node, it should appear in the corresponding NFS:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@nuc$ pveam list rusty-nfs
+NAME                                                         SIZE
+rusty-nfs:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz  204.28MB
+</code></pre></div><p>Now the NUC can have redundant storage over NFS.</p>
+<h2 id=next>Next</h2>
+<p>The machines are running, storage is configured and the cluster is ready for some workloads, but before that it&rsquo;d be a good idea to automate some of the preflight tasks. In the next part, I&rsquo;ll take a look at Ansible to harden access and handle any of the post-install configuration.</p>
+</div>
+<div class=pagination>
+<div class=pagination__title>
+<span class=pagination__title-h>Read other posts</span>
+<hr>
+</div>
+<div class=pagination__buttons>
+<span class="button previous">
+<a href=http://blog.reb.gg/posts/03-homelab-pt3/>
+<span class=button__icon>←</span>
+<span class=button__text>Homelab Part III: Automation with Ansible and Hardening Access</span>
+</a>
+</span>
+<span class="button next">
+<a href=http://blog.reb.gg/posts/01-homelab-pt1/>
+<span class=button__text>Homelab Part I: Intro, Hardware and Proxmox install</span>
+<span class=button__icon>→</span>
+</a>
+</span>
+</div>
+</div>
+</div>
+</div>
+<footer class=footer>
+<div class=footer__inner>
+<a href=/ class=logo style=text-decoration:none>
+<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+</span>
+<span class=logo__text>rob's blog</span>
+<span class=logo__cursor></span>
+</a>
+<div class=copyright>
+<span>© 2022 Powered by
+<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a></span>
+<span>Theme created by
+<a href=https://twitter.com/panr target=_blank rel=noopener>panr</a></span>
+</div>
+</div>
+</footer>
+<script src=http://blog.reb.gg/assets/main.js></script>
+<script src=http://blog.reb.gg/assets/prism.js></script>
+</div>
+</body>
+</html>
