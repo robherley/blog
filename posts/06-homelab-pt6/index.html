@@ -1,64 +1,166 @@
-<!doctype html><html lang=en>
+<!doctype html><html lang=en-us>
 <head>
-<title>
-Homelab Part VI: Terraforming Proxmox ::
-rob's blog
-</title>
+<link rel=preload href=/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<link rel=preload href=/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<link rel=preload href=/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<script type=text/javascript src=https://latest.cactus.chat/cactus.js></script>
+<link rel=stylesheet href=https://latest.cactus.chat/style.css type=text/css>
 <meta charset=utf-8>
-<meta name=viewport content="width=device-width,initial-scale=1">
-<meta name=description content="In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
-In this part, I&amp;rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.">
-<meta name=keywords content>
-<meta name=robots content="noodp">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<title> Homelab Part VI: Terraforming Proxmox | rob's blog</title>
 <link rel=canonical href=https://blog.reb.gg/posts/06-homelab-pt6/>
-<link rel=stylesheet href=https://blog.reb.gg/assets/style.css>
-<link rel=stylesheet href=https://blog.reb.gg/style.css>
-<link rel=apple-touch-icon-precomposed sizes=144x144 href=https://blog.reb.gg/img/apple-touch-icon-144-precomposed.png>
-<link rel="shortcut icon" href=https://blog.reb.gg/img/favicon.png>
-<link href=https://blog.reb.gg/assets/fonts/Inter-Italic.woff2 rel=preload type=font/woff2 as=font crossorigin>
-<link href=https://blog.reb.gg/assets/fonts/Inter-Regular.woff2 rel=preload type=font/woff2 as=font crossorigin>
-<link href=https://blog.reb.gg/assets/fonts/Inter-Medium.woff2 rel=preload type=font/woff2 as=font crossorigin>
-<link href=https://blog.reb.gg/assets/fonts/Inter-MediumItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
-<link href=https://blog.reb.gg/assets/fonts/Inter-Bold.woff2 rel=preload type=font/woff2 as=font crossorigin>
-<link href=https://blog.reb.gg/assets/fonts/Inter-BoldItalic.woff2 rel=preload type=font/woff2 as=font crossorigin>
-<meta name=twitter:card content="summary">
-<meta name=twitter:title content="Homelab Part VI: Terraforming Proxmox">
-<meta name=twitter:description content="In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
-In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.">
+<meta name=description content="👋 Hey y'all. This blog is my documented journey working with various aspects of technology. I'll try my best to keep things coherent and interesting, and hopefully I can teach a few people along the way.">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="all,follow">
+<meta name=googlebot content="index,follow,snippet,archive">
 <meta property="og:title" content="Homelab Part VI: Terraforming Proxmox">
 <meta property="og:description" content="In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
 In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://blog.reb.gg/posts/06-homelab-pt6/"><meta property="article:section" content="posts">
-<meta property="article:published_time" content="2022-01-09T06:00:00-05:00">
-<meta property="article:modified_time" content="2022-01-09T06:00:00-05:00"><meta property="og:site_name" content="rob's blog">
+<meta property="article:published_time" content="2022-01-14T00:00:00-05:00">
+<meta property="article:modified_time" content="2022-01-14T00:00:00-05:00">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Homelab Part VI: Terraforming Proxmox">
+<meta name=twitter:description content="In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
+In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as managing Cloudflare DNS records.">
+<link rel=stylesheet href=https://blog.reb.gg/css/styles.a20e9ff7e4966e5e04f7c5bb633c3e427d0e10d8d676b3c4b81da08966c34bd718f4bf0b40f3a4a8cb8495678b39d8007406db2549bc420e2c2e8086708b958c.css integrity="sha512-og6f9+SWbl4E98W7Yzw+Qn0OENjWdrPEuB2giWbDS9cY9L8LQPOkqMuElWeLOdgAdAbbJUm8Qg4sLoCGcIuVjA==">
+<link rel=stylesheet href=https://blog.reb.gg/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]-->
+<link rel=icon type=image/png href=https://blog.reb.gg/images/favicon.ico>
 </head>
-<body class=dark-theme>
-<div class=container>
-<header class=header>
-<span class=header__inner>
-<a href=/ class=logo style=text-decoration:none>
-<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
+<body class="max-width mx-auto px3 ltr">
+<div class="content index py4">
+<div id=header-post>
+<a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick="$('html, body').animate({scrollTop:0},'fast')" style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<span id=menu>
+<span id=nav>
+<ul>
+<li><a href=/>Home</a></li>
+<li><a href=/posts>Posts</a></li>
+<li><a href=/tags>Tags</a></li>
+</ul>
 </span>
-<span class=logo__text>rob's blog</span>
-<span class=logo__cursor></span>
+<br>
+<span id=actions>
+<ul>
+<li>
+<a class=icon href=https://blog.reb.gg/posts/05-homelab-pt5/ aria-label=Previous>
+<i class="fas fa-chevron-left" aria-hidden=true onmouseover="$('#i-prev').toggle()" onmouseout="$('#i-prev').toggle()"></i>
 </a>
-<span class=header__right>
-<span class=theme-toggle><svg class="theme-toggler" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 41c10.4934.0 19-8.5066 19-19C41 11.5066 32.4934 3 22 3 11.5066 3 3 11.5066 3 22s8.5066 19 19 19zM7 22C7 13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22z"/></svg>
+</li>
+<li>
+<a class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
+<i class="fas fa-chevron-up" aria-hidden=true onmouseover="$('#i-top').toggle()" onmouseout="$('#i-top').toggle()"></i>
+</a>
+</li>
+<li>
+<a class=icon href=# aria-label=Share>
+<i class="fas fa-share-alt" aria-hidden=true onmouseover="$('#i-share').toggle()" onmouseout="$('#i-share').toggle()" onclick="return $('#share').toggle(),!1"></i>
+</a>
+</li>
+</ul>
+<span id=i-prev class=info style=display:none>Previous post</span>
+<span id=i-next class=info style=display:none>Next post</span>
+<span id=i-top class=info style=display:none>Back to top</span>
+<span id=i-share class=info style=display:none>Share post</span>
 </span>
-</span>
-</span>
-</header>
-<div class=content>
-<div class=post>
-<h1 class=post-title>Homelab Part VI: Terraforming Proxmox</h1>
-<div class=post-meta>
-<span class=post-date>
-2022-01-09
-</span>
-<span class=post-read-time>— 6 min read</span>
+<br>
+<div id=share style=display:none>
+<ul>
+<li>
+<a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f" aria-label=Facebook>
+<i class="fab fa-facebook" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&text=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Twitter>
+<i class="fab fa-twitter" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&title=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Linkedin>
+<i class="fab fa-linkedin" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&is_video=false&description=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Pinterest>
+<i class="fab fa-pinterest" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="mailto:?subject=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f" aria-label=Email>
+<i class="fas fa-envelope" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&title=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Pocket>
+<i class="fab fa-get-pocket" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&title=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=reddit>
+<i class="fab fa-reddit" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&name=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20configured%20a%20template%20VM%20with%20cloud-init%20configs%20for%20zero%20intervention%20VM%20automation%20after%20provision.%0aIn%20this%20part%2c%20I%26rsquo%3bll%20setup%20a%20basic%20HashiCorp%20Terraform%20project%20for%20infrastructure%20as%20code%20%28IaC%29%20to%20provision%20the%20guest%20VMs%20and%20containers%20from%20Proxmox.%20This%20will%20be%20a%20great%20foundation%20for%20the%20homelab%2c%20as%20Terraform%20can%20be%20expanded%20to%20cloud%20automation%20as%20well%2c%20such%20as%20managing%20Cloudflare%20DNS%20records." aria-label=Tumblr>
+<i class="fab fa-tumblr" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&t=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label="Hacker News">
+<i class="fab fa-hacker-news" aria-hidden=true></i>
+</a>
+</li>
+</ul>
 </div>
-<div class=post-content>
+</span>
+</div>
+<div style=margin-bottom:2rem>
+<a href=https://blog.reb.gg/><i class="fas fa-angle-left"></i> Back</a>
+</div>
+<article class=post itemscope itemtype=http://schema.org/BlogPosting>
+<header>
+<h1 class=posttitle itemprop="name headline">
+Homelab Part VI: Terraforming Proxmox
+</h1>
+<div class=meta>
+<div class=postdate>
+<time datetime="2022-01-14 00:00:00 -0500 -0500" itemprop=datePublished>2022 Jan 14</time>
+</div>
+<div class=article-read-time>
+<i class="far fa-clock"></i>
+5 minute read
+</div>
+<div class=article-tag>
+<i class="fas fa-tag"></i>
+<a class=tag-link href=/tags/proxmox rel=tag>proxmox</a>
+,
+<a class=tag-link href=/tags/vm rel=tag>vm</a>
+,
+<a class=tag-link href=/tags/lxc rel=tag>lxc</a>
+,
+<a class=tag-link href=/tags/terraform rel=tag>terraform</a>
+</div>
+</div>
+</header>
+<div id=toc>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#what-is-terraform>What is Terraform?</a></li>
+<li><a href=#installing-terraform-locally>Installing Terraform locally</a></li>
+<li><a href=#creating-an-automation-user>Creating an automation user</a></li>
+<li><a href=#provider>Provider</a></li>
+<li><a href=#variables>Variables</a></li>
+<li><a href=#conclusion>Conclusion</a></li>
+</ul>
+</nav>
+</div>
+<div class=content itemprop=articleBody>
 <p>In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.</p>
 <p>In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastructure as code (IaC) to provision the guest VMs and containers from Proxmox. This will be a great foundation for the homelab, as Terraform can be expanded to cloud automation as well, such as <a href=https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs>managing Cloudflare DNS records</a>.</p>
 <h2 id=what-is-terraform>What is Terraform?</h2>
@@ -73,198 +175,253 @@ In this part, I&rsquo;ll setup a basic HashiCorp Terraform project for infrastru
 <h2 id=creating-an-automation-user>Creating an automation user</h2>
 <p>Similar to Ansible, an API user for Proxmox will need to be created for Terraform.</p>
 <p>On one of the Proxmox nodes, make a <code>terraform</code> user, add it to the automation group, and set a password:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>root@r720$ pveum user add terraform@pve --groups automation --password &lt;some password&gt;
-</code></pre></div><h2 id=provider>Provider</h2>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveum user add terraform@pve --groups automation --password &lt;some password&gt;</code></pre></div>
+<h2 id=provider>Provider</h2>
 <p>There&rsquo;s a <a href=https://registry.terraform.io/providers/Telmate/proxmox/latest/docs>Proxmox provider</a> on the Terraform registry, this&rsquo;ll be the coupling for Terraform to communicate to the Proxmox API and understand how to reconcile the defined Terraform state.</p>
 <p>First, Terrafrom needs to know about the Proxmox provider.</p>
 <p>In <code>terrafrom/main.tf</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#a6e22e>terraform</span> {
-  <span style=color:#a6e22e>required_providers</span> {
-    <span style=color:#a6e22e>proxmox</span> = {
-      <span style=color:#a6e22e>source</span>  = <span style=color:#e6db74>&#34;telmate/proxmox&#34;</span>
-      <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;2.9.4&#34;</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-terraform data-lang=terraform>terraform {
+  required_providers {
+    <span style=color:#50fa7b>proxmox</span> = {
+      <span style=color:#50fa7b>source</span>  = <span style=color:#f1fa8c>&#34;telmate/proxmox&#34;</span>
+      <span style=color:#50fa7b>version</span> = <span style=color:#f1fa8c>&#34;2.9.4&#34;</span>
     }
   }
 }
 </code></pre></div><p>Then, Terraform can be initialized and install the defined plugin:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ terraform init
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>Initializing the backend...
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>Initializing provider plugins...
-- Finding telmate/proxmox versions matching &#34;2.9.4&#34;...
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding telmate/proxmox versions matching <span style=color:#f1fa8c>&#34;2.9.4&#34;</span>...
 - Installing telmate/proxmox v2.9.4...
-- Installed telmate/proxmox v2.9.4 (self-signed, key ID A9EBBE091B35AFCE)
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>...
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>Terraform has been successfully initialized!
-</code></pre></div><p>To actually connect Proxmox and Terraform, a provider needs be defined.</p>
+- Installed telmate/proxmox v2.9.4 <span style=color:#ff79c6>(</span>self-signed, key ID A9EBBE091B35AFCE<span style=color:#ff79c6>)</span>
+
+...
+
+Terraform has been successfully initialized!</code></pre></div>
+<p>To actually connect Proxmox and Terraform, a provider needs be defined.</p>
 <p>In <code>terraform/providers.tf</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#66d9ef>provider</span> <span style=color:#e6db74>&#34;proxmox&#34;</span> {
-  <span style=color:#a6e22e>pm_parallel</span>     = <span style=color:#ae81ff>1</span>
-  <span style=color:#a6e22e>pm_tls_insecure</span> = <span style=color:#66d9ef>true</span>
-  <span style=color:#a6e22e>pm_debug</span>        = <span style=color:#66d9ef>true</span>
-  <span style=color:#a6e22e>pm_api_url</span>      = var.<span style=color:#a6e22e>pm_api_url</span>
-  <span style=color:#a6e22e>pm_password</span>     = var.<span style=color:#a6e22e>pm_password</span>
-  <span style=color:#a6e22e>pm_user</span>         = var.<span style=color:#a6e22e>pm_user</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-terraform data-lang=terraform><span style=color:#ff79c6>provider</span> <span style=color:#f1fa8c>&#34;proxmox&#34;</span> {
+  <span style=color:#50fa7b>pm_parallel</span>     = <span style=color:#bd93f9>1</span>
+  <span style=color:#50fa7b>pm_tls_insecure</span> = <span style=color:#ff79c6>true</span>
+  <span style=color:#50fa7b>pm_debug</span>        = <span style=color:#ff79c6>true</span>
+  <span style=color:#50fa7b>pm_api_url</span>      = <span style=color:#8be9fd;font-style:italic>var</span>.pm_api_url
+  <span style=color:#50fa7b>pm_password</span>     = <span style=color:#8be9fd;font-style:italic>var</span>.pm_password
+  <span style=color:#50fa7b>pm_user</span>         = <span style=color:#8be9fd;font-style:italic>var</span>.pm_user
 }
 </code></pre></div><p>This is the basic configuration for the provider, most is self explanatory. The <code>pm_parallel</code> command is set to only allow one Proxmox operation at a time.</p>
 <p>The <code>var.*</code> parameters are special, those&rsquo;ll be defined in a variables file.</p>
 <h2 id=variables>Variables</h2>
 <p>Terraform has input variables, which let you customize aspects of Terraform modules without altering the module&rsquo;s own source code. <a href=https://www.terraform.io/language/values/variables>Input variables</a> are declared in blocks within <code>.tf</code> files, and their actual values are in a <code>.tfvars</code> file.</p>
 <p>In <code>terraform/variables.tf</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;pm_api_url&#34;</span> {
-  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;https://192.168.1.100:8006/api2/json&#34;</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-terraform data-lang=terraform><span style=color:#ff79c6>variable</span> <span style=color:#f1fa8c>&#34;pm_api_url&#34;</span> {
+  <span style=color:#50fa7b>default</span> = <span style=color:#f1fa8c>&#34;https://192.168.1.100:8006/api2/json&#34;</span>
 }
-<span style=color:#66d9ef>
-</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;pm_user&#34;</span> {
-  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;terraform@pve&#34;</span>
+<span style=color:#ff79c6>
+</span><span style=color:#ff79c6>variable</span> <span style=color:#f1fa8c>&#34;pm_user&#34;</span> {
+  <span style=color:#50fa7b>default</span> = <span style=color:#f1fa8c>&#34;terraform@pve&#34;</span>
 }
-<span style=color:#66d9ef>
-</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;pm_password&#34;</span> {
-  <span style=color:#a6e22e>sensitive</span> = <span style=color:#66d9ef>true</span>
+<span style=color:#ff79c6>
+</span><span style=color:#ff79c6>variable</span> <span style=color:#f1fa8c>&#34;pm_password&#34;</span> {
+  <span style=color:#50fa7b>sensitive</span> = <span style=color:#ff79c6>true</span>
 }
-<span style=color:#66d9ef>
-</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;vm_template_name&#34;</span> {
-  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;ubuntu-cloudinit-template&#34;</span>
+<span style=color:#ff79c6>
+</span><span style=color:#ff79c6>variable</span> <span style=color:#f1fa8c>&#34;vm_template_name&#34;</span> {
+  <span style=color:#50fa7b>default</span> = <span style=color:#f1fa8c>&#34;ubuntu-cloudinit-template&#34;</span>
 }
-<span style=color:#66d9ef>
-</span><span style=color:#66d9ef>variable</span> <span style=color:#e6db74>&#34;lxc_template_name&#34;</span> {
-  <span style=color:#a6e22e>default</span> = <span style=color:#e6db74>&#34;ubuntu-ct-template&#34;</span>
+<span style=color:#ff79c6>
+</span><span style=color:#ff79c6>variable</span> <span style=color:#f1fa8c>&#34;lxc_template_name&#34;</span> {
+  <span style=color:#50fa7b>default</span> = <span style=color:#f1fa8c>&#34;ubuntu-ct-template&#34;</span>
 }
 </code></pre></div><p>Most of these variable blocks are using <code>default</code>, which makes the variable optional. This is just because I&rsquo;m lazy and I&rsquo;m just defining any public variables here. The <code>pm_password</code> var is <code>sensitive</code> (not shown in Terraform output) with no default, and it will be defined in a <code>.tfvars</code> file that won&rsquo;t be checked into git. As for the <code>*_template_name</code> variables, those&rsquo;ll be used in a bit.</p>
 <p>In <code>terraform/terraform.tfvars</code>, add the <code>terraform</code> Proxmox user password:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#a6e22e>pm_password</span> = <span style=color:#e6db74>&#34;correct-horse-battery-staple&#34;</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-terraform data-lang=terraform><span style=color:#50fa7b>pm_password</span> = <span style=color:#f1fa8c>&#34;correct-horse-battery-staple&#34;</span>
 </code></pre></div><p>Now, the actual resources can be defined. And like anything else in HCL, it&rsquo;s denoted in a block syntax.</p>
 <p>In <code>terraform/resources.tf</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;proxmox_vm_qemu&#34;</span> <span style=color:#e6db74>&#34;tf-test&#34;</span> {
-  <span style=color:#a6e22e>name</span>        = <span style=color:#e6db74>&#34;tf-test&#34;</span>
-  <span style=color:#a6e22e>target_node</span> = <span style=color:#e6db74>&#34;r720&#34;</span>
-  <span style=color:#a6e22e>clone</span>       = var.<span style=color:#a6e22e>vm_template_name</span>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-terraform data-lang=terraform><span style=color:#ff79c6>resource</span> <span style=color:#f1fa8c>&#34;proxmox_vm_qemu&#34;</span> <span style=color:#f1fa8c>&#34;tf-test&#34;</span> {
+  <span style=color:#50fa7b>name</span>        = <span style=color:#f1fa8c>&#34;tf-test&#34;</span>
+  <span style=color:#50fa7b>target_node</span> = <span style=color:#f1fa8c>&#34;r720&#34;</span>
+  <span style=color:#50fa7b>clone</span>       = <span style=color:#8be9fd;font-style:italic>var</span>.vm_template_name
 
-  <span style=color:#a6e22e>cores</span>       = <span style=color:#ae81ff>4</span>
-  <span style=color:#a6e22e>memory</span>      = <span style=color:#ae81ff>8192</span>
-  <span style=color:#a6e22e>agent</span>       = <span style=color:#ae81ff>1</span>
+  <span style=color:#50fa7b>cores</span>       = <span style=color:#bd93f9>4</span>
+  <span style=color:#50fa7b>memory</span>      = <span style=color:#bd93f9>8192</span>
+  <span style=color:#50fa7b>agent</span>       = <span style=color:#bd93f9>1</span>
 }
 </code></pre></div><p>This will create a VM with the name <code>tf-test</code>, which will be a full clone of <code>var.vm_template_name</code> that was defined in <code>variables.tf</code>. Unfortunately unlike the <code>qm clone</code> command, the attributes of the VM are not carried over in this provider&rsquo;s Terraform clone (it&rsquo;s programmed to use defaults instead) so the bare minimal parameters are specified.</p>
 <p>💡 For explanations of all the parameters, see the provider&rsquo;s <a href=https://registry.terraform.io/providers/Telmate/proxmox/latest/docs/resources/vm_qemu#argument-reference>argument reference</a>.</p>
 <p>To plan the change, run <code>terraform plan</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ $ terraform plan
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>$ terraform plan
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following
 symbols:
   + create
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>Terraform will perform the following actions:
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>  # proxmox_vm_qemu.tf-test will be created
-  + resource &#34;proxmox_vm_qemu&#34; &#34;tf-test&#34; {
-      + additional_wait           = 0
-      + agent                     = 1
-      + automatic_reboot          = true
-      + balloon                   = 0
-      + bios                      = &#34;seabios&#34;
-      + boot                      = &#34;c&#34;
-      + bootdisk                  = (known after apply)
-      + clone                     = &#34;ubuntu-cloudinit-template&#34;
-      + clone_wait                = 0
-      + cores                     = 4
-      + cpu                       = &#34;host&#34;
-      + default_ipv4_address      = (known after apply)
-      + define_connection_info    = true
-      + force_create              = false
-      + full_clone                = true
-      + guest_agent_ready_timeout = 100
-      + hotplug                   = &#34;network,disk,usb&#34;
-      + id                        = (known after apply)
-      + kvm                       = true
-      + memory                    = 8192
-      + name                      = &#34;tf-test&#34;
-      + nameserver                = (known after apply)
-      + numa                      = false
-      + onboot                    = false
-      + oncreate                  = true
-      + preprovision              = true
-      + reboot_required           = (known after apply)
-      + scsihw                    = (known after apply)
-      + searchdomain              = (known after apply)
-      + sockets                   = 1
-      + ssh_host                  = (known after apply)
-      + ssh_port                  = (known after apply)
-      + tablet                    = true
-      + target_node               = &#34;r720&#34;
-      + unused_disk               = (known after apply)
-      + vcpus                     = 0
-      + vlan                      = -1
-      + vmid                      = (known after apply)
-    }
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>...
-</code></pre></div><p>Once the plan is confirmed to be okay, it can be applied:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ $ terraform apply
+
+Terraform will perform the following actions:
+
+  <span style=color:#6272a4># proxmox_vm_qemu.tf-test will be created</span>
+  + resource <span style=color:#f1fa8c>&#34;proxmox_vm_qemu&#34;</span> <span style=color:#f1fa8c>&#34;tf-test&#34;</span> <span style=color:#ff79c6>{</span>
+      + <span style=color:#8be9fd;font-style:italic>additional_wait</span>           <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>
+      + <span style=color:#8be9fd;font-style:italic>agent</span>                     <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>1</span>
+      + <span style=color:#8be9fd;font-style:italic>automatic_reboot</span>          <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>true</span>
+      + <span style=color:#8be9fd;font-style:italic>balloon</span>                   <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>
+      + <span style=color:#8be9fd;font-style:italic>bios</span>                      <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#34;seabios&#34;</span>
+      + <span style=color:#8be9fd;font-style:italic>boot</span>                      <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#34;c&#34;</span>
+      + <span style=color:#8be9fd;font-style:italic>bootdisk</span>                  <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>clone</span>                     <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#34;ubuntu-cloudinit-template&#34;</span>
+      + <span style=color:#8be9fd;font-style:italic>clone_wait</span>                <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>
+      + <span style=color:#8be9fd;font-style:italic>cores</span>                     <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>4</span>
+      + <span style=color:#8be9fd;font-style:italic>cpu</span>                       <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#34;host&#34;</span>
+      + <span style=color:#8be9fd;font-style:italic>default_ipv4_address</span>      <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>define_connection_info</span>    <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>true</span>
+      + <span style=color:#8be9fd;font-style:italic>force_create</span>              <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>false</span>
+      + <span style=color:#8be9fd;font-style:italic>full_clone</span>                <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>true</span>
+      + <span style=color:#8be9fd;font-style:italic>guest_agent_ready_timeout</span> <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>100</span>
+      + <span style=color:#8be9fd;font-style:italic>hotplug</span>                   <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#34;network,disk,usb&#34;</span>
+      + <span style=color:#8be9fd;font-style:italic>id</span>                        <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>kvm</span>                       <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>true</span>
+      + <span style=color:#8be9fd;font-style:italic>memory</span>                    <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>8192</span>
+      + <span style=color:#8be9fd;font-style:italic>name</span>                      <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#34;tf-test&#34;</span>
+      + <span style=color:#8be9fd;font-style:italic>nameserver</span>                <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>numa</span>                      <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>false</span>
+      + <span style=color:#8be9fd;font-style:italic>onboot</span>                    <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>false</span>
+      + <span style=color:#8be9fd;font-style:italic>oncreate</span>                  <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>true</span>
+      + <span style=color:#8be9fd;font-style:italic>preprovision</span>              <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>true</span>
+      + <span style=color:#8be9fd;font-style:italic>reboot_required</span>           <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>scsihw</span>                    <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>searchdomain</span>              <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>sockets</span>                   <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>1</span>
+      + <span style=color:#8be9fd;font-style:italic>ssh_host</span>                  <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>ssh_port</span>                  <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>tablet</span>                    <span style=color:#ff79c6>=</span> <span style=color:#8be9fd;font-style:italic>true</span>
+      + <span style=color:#8be9fd;font-style:italic>target_node</span>               <span style=color:#ff79c6>=</span> <span style=color:#f1fa8c>&#34;r720&#34;</span>
+      + <span style=color:#8be9fd;font-style:italic>unused_disk</span>               <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+      + <span style=color:#8be9fd;font-style:italic>vcpus</span>                     <span style=color:#ff79c6>=</span> <span style=color:#bd93f9>0</span>
+      + <span style=color:#8be9fd;font-style:italic>vlan</span>                      <span style=color:#ff79c6>=</span> -1
+      + <span style=color:#8be9fd;font-style:italic>vmid</span>                      <span style=color:#ff79c6>=</span> <span style=color:#ff79c6>(</span>known after apply<span style=color:#ff79c6>)</span>
+    <span style=color:#ff79c6>}</span>
+
+...</code></pre></div>
+<p>Once the plan is confirmed to be okay, it can be applied:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>$ terraform apply
 ...
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>proxmox_vm_qemu.tf-test: Creating...
-proxmox_vm_qemu.tf-test: Still creating... [10s elapsed]
-proxmox_vm_qemu.tf-test: Still creating... [20s elapsed]
-proxmox_vm_qemu.tf-test: Still creating... [30s elapsed]
-proxmox_vm_qemu.tf-test: Still creating... [40s elapsed]
-proxmox_vm_qemu.tf-test: Still creating... [50s elapsed]
-proxmox_vm_qemu.tf-test: Still creating... [1m0s elapsed]
-proxmox_vm_qemu.tf-test: Creation complete after 1m3s [id=r720/qemu/101]
-<span style=color:#960050;background-color:#1e0010>
-</span><span style=color:#960050;background-color:#1e0010></span>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-</code></pre></div><p>Now to double check with Ansible:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ ansible proxmox_all_running -m ping
-tf-test | SUCCESS =&gt; {
-    &#34;ansible_facts&#34;: {
-        &#34;discovered_interpreter_python&#34;: &#34;/usr/bin/python3&#34;
-    },
-    &#34;changed&#34;: false,
-    &#34;ping&#34;: &#34;pong&#34;
-}
-</code></pre></div><p>Perfect! The homelab infrastructure is now fully declarative and automated.</p>
+
+proxmox_vm_qemu.tf-test: Creating...
+proxmox_vm_qemu.tf-test: Still creating... <span style=color:#ff79c6>[</span>10s elapsed<span style=color:#ff79c6>]</span>
+proxmox_vm_qemu.tf-test: Still creating... <span style=color:#ff79c6>[</span>20s elapsed<span style=color:#ff79c6>]</span>
+proxmox_vm_qemu.tf-test: Still creating... <span style=color:#ff79c6>[</span>30s elapsed<span style=color:#ff79c6>]</span>
+proxmox_vm_qemu.tf-test: Still creating... <span style=color:#ff79c6>[</span>40s elapsed<span style=color:#ff79c6>]</span>
+proxmox_vm_qemu.tf-test: Still creating... <span style=color:#ff79c6>[</span>50s elapsed<span style=color:#ff79c6>]</span>
+proxmox_vm_qemu.tf-test: Still creating... <span style=color:#ff79c6>[</span>1m0s elapsed<span style=color:#ff79c6>]</span>
+proxmox_vm_qemu.tf-test: Creation <span style=color:#8be9fd;font-style:italic>complete</span> after 1m3s <span style=color:#ff79c6>[</span><span style=color:#8be9fd;font-style:italic>id</span><span style=color:#ff79c6>=</span>r720/qemu/101<span style=color:#ff79c6>]</span>
+
+Apply complete! Resources: <span style=color:#bd93f9>1</span> added, <span style=color:#bd93f9>0</span> changed, <span style=color:#bd93f9>0</span> destroyed.</code></pre></div>
+<p>Now to double check with Ansible:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible proxmox_all_running -m ping
+tf-test | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+    <span style=color:#ff79c6>}</span>,
+    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+<span style=color:#ff79c6>}</span></code></pre></div>
+<p>Perfect! The homelab infrastructure is now fully declarative and automated.</p>
 <p>❗<strong>Note:</strong> during testing, I have found the provider to be flaky at points when determining if the VM or LXC is created or not. Apparently this is a <a href=https://github.com/Telmate/terraform-provider-proxmox/issues/480#issuecomment-1005949219>known issue</a> with the provider, due to a bug when interacting with Proxmox conf locks. Either the provider can be downgraded to version <code>2.8.0</code> or existing resources can be imported into Terraform&rsquo;s state like so:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console>rob@macbook$ # terraform import &lt;resource type&gt;.&lt;resource name&gt; &lt;node&gt;/&lt;type&gt;/&lt;vmid&gt;
-rob@macbook$ terraform import proxmox_vm_qemu.tf-test r720/qemu/101
-</code></pre></div><h2 id=next>Next</h2>
-<p>Well, that&rsquo;s it for the homelab series! I think six parts is enough to conclude. The homelab is now a fully operational virtualization cluster with redundant ZFS (and NFS) storage, VM/LXC templates, automated with Ansible and provisioned via IaC with Terraform. There <em>may</em> be separate one-offs for TrueNAS, Kubernetes or OpenShift clusters, but no promises. 😉 Thanks for tagging along!</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#6272a4># terraform import &lt;resource type&gt;.&lt;resource name&gt; &lt;node&gt;/&lt;type&gt;/&lt;vmid&gt;</span>
+<span style=color:#50fa7b;user-select:none>rob@macbook$ </span>terraform import proxmox_vm_qemu.tf-test r720/qemu/101</code></pre></div>
+<h2 id=conclusion>Conclusion</h2>
+<p>Well, that&rsquo;s it for the homelab series! I think six parts is enough to conclude. The homelab is now a fully operational virtualization cluster with redundant ZFS (and NFS) storage, VM/LXC templates, automated with Ansible and provisioned via IaC with Terraform. There <em>may</em> be separate one-offs for TrueNAS, Kubernetes or OpenShift clusters, but no promises. Thanks for tagging along!</p>
 </div>
-<div class=pagination>
-<div class=pagination__title>
-<span class=pagination__title-h>Read other posts</span>
-<hr>
+</article>
+<div style="margin:2rem 0">
+<a style=float:left href=https://blog.reb.gg/posts/05-homelab-pt5/><i class="fas fa-angle-left"></i> Prev</a>
 </div>
-<div class=pagination__buttons>
-<span class="button next">
-<a href=https://blog.reb.gg/posts/05-homelab-pt5/>
-<span class=button__text>Homelab Part V: Proxmox VMs and cloud-init</span>
-<span class=button__icon>→</span>
+<div id=footer-post-container>
+<div id=footer-post>
+<div id=nav-footer style=display:none>
+<ul>
+<li><a href=/>Home</a></li>
+<li><a href=/posts>Posts</a></li>
+<li><a href=/tags>Tags</a></li>
+</ul>
+</div>
+<div id=share-footer style=display:none>
+<ul>
+<li>
+<a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f" aria-label=Facebook>
+<i class="fab fa-facebook fa-lg" aria-hidden=true></i>
 </a>
-</span>
-</div>
-</div>
-</div>
-</div>
-<footer class=footer>
-<div class=footer__inner>
-<a href=/ class=logo style=text-decoration:none>
-<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
-</span>
-<span class=logo__text>rob's blog</span>
-<span class=logo__cursor></span>
+</li>
+<li>
+<a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&text=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Twitter>
+<i class="fab fa-twitter fa-lg" aria-hidden=true></i>
 </a>
-<div class=copyright>
-<span>© 2022 Powered by
-<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a></span>
-<span>Theme created by
-<a href=https://twitter.com/panr target=_blank rel=noopener>panr</a></span>
+</li>
+<li>
+<a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&title=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Linkedin>
+<i class="fab fa-linkedin fa-lg" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&is_video=false&description=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Pinterest>
+<i class="fab fa-pinterest fa-lg" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="mailto:?subject=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f" aria-label=Email>
+<i class="fas fa-envelope fa-lg" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&title=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=Pocket>
+<i class="fab fa-get-pocket fa-lg" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&title=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label=reddit>
+<i class="fab fa-reddit fa-lg" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&name=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20configured%20a%20template%20VM%20with%20cloud-init%20configs%20for%20zero%20intervention%20VM%20automation%20after%20provision.%0aIn%20this%20part%2c%20I%26rsquo%3bll%20setup%20a%20basic%20HashiCorp%20Terraform%20project%20for%20infrastructure%20as%20code%20%28IaC%29%20to%20provision%20the%20guest%20VMs%20and%20containers%20from%20Proxmox.%20This%20will%20be%20a%20great%20foundation%20for%20the%20homelab%2c%20as%20Terraform%20can%20be%20expanded%20to%20cloud%20automation%20as%20well%2c%20such%20as%20managing%20Cloudflare%20DNS%20records." aria-label=Tumblr>
+<i class="fab fa-tumblr fa-lg" aria-hidden=true></i>
+</a>
+</li>
+<li>
+<a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f06-homelab-pt6%2f&t=Homelab%20Part%20VI%3a%20Terraforming%20Proxmox" aria-label="Hacker News">
+<i class="fab fa-hacker-news fa-lg" aria-hidden=true></i>
+</a>
+</li>
+</ul>
 </div>
+<div id=actions-footer>
+<a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu>
+<i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share>
+<i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
+<i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a>
+</div>
+</div>
+</div>
+<footer id=footer>
+<div class=footer-left>
+Copyright &copy; 2022 Rob Herley
+</div>
+<div class=footer-right>
+<nav>
+<ul>
+<li><a href=/>Home</a></li>
+<li><a href=/posts>Posts</a></li>
+<li><a href=/tags>Tags</a></li>
+</ul>
+</nav>
 </div>
 </footer>
-<script src=https://blog.reb.gg/assets/main.js></script>
-<script src=https://blog.reb.gg/assets/prism.js></script>
 </div>
 </body>
+<link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
+<script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
 </html>
