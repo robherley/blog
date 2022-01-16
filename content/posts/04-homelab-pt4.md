@@ -1,7 +1,12 @@
 ---
 title: "Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates"
-date: 2022-01-09T04:00:00-05:00
+date: 2022-01-12T00:00:00-05:00
 draft: false
+tags:
+  - proxmox
+  - ansible
+  - lxc
+  - systemd
 ---
 
 In the previous part of this series, I configured Ansible and made some basic playbooks for the homelab management. Eventually, I'll be deploying a plethora of VMs and containers, but managing a gigantic inventory every time a guest is spun up/down would be a hassle. Fortunately, there are community plugins for Ansible that allow the use of a Proxmox cluster as a [dynamic inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html).
@@ -15,17 +20,17 @@ Permissions on Proxmox are scoped to a cluster, which is great since only need a
 On one of the Proxmox nodes:
 
   1. Create a group called `automation`:
-      ```console
-      root@r720$ pveum group add automation
-      ```
+{{< terminal >}}
+root@r720$ pveum group add automation
+{{< /terminal >}}
   2. Since this will group will be primarily for managing the entire system, it'll be assigned to the Administrator role:
-      ```console
-      root@r720$ pveum acl modify / --group automation --role Administrator
-      ```
+{{< terminal >}}
+root@r720$ pveum acl modify / --group automation --role Administrator
+{{< /terminal >}}
   3. And then make the `ansible` user, add it to the automation group, and set a password:
-      ```console
-      root@r720$ pveum user add ansible@pve --groups automation --password <some password>
-      ```
+{{< terminal >}}
+root@r720$ pveum user add ansible@pve --groups automation --password <some password>
+{{< /terminal >}}
 
 ## Proxmox plugin for Ansible
 
@@ -40,9 +45,9 @@ collections:
 
 Any additional collections can be added to the requirements file. And to install them, they must be pulled from [ansible-galaxy](https://docs.ansible.com/ansible/latest/galaxy/user_guide.html):
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible-galaxy install -r requirements.yml
-```
+{{< /terminal >}}
 
 The specific plugin `community.general.proxmox` is used to configure a [dynamic inventory](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_inventory.html). There is also a [module](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html) within that same plugin that can be used to manage instances within tasks.
 
@@ -72,9 +77,9 @@ want_proxmox_nodes_ansible_host: false # override `ansible_host` for node
 
 The `user` and `password` are from the `ansible` user just previously configured. To get the giant encrypted block of a password, it's the following command:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible-vault encrypt_string <ansible user password>
-```
+{{< /terminal >}}
 
 Note: Unlike the user password in the previous part of this series, this password does not need to be hashed or salted. The value is being passed as API authentication to Proxmox.
 
@@ -90,13 +95,13 @@ One of the great things about dynamic inventories is that they add additional gr
 
 To see a list of all facts in an inventory, the following command can be used:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible-inventory --list
-```
+{{< /terminal >}}
 
 A new LXC can be used for a quick test of the inventory. On one of the nodes, download the Ubuntu container image using [`pveam`](https://pve.proxmox.com/pve-docs/pveam.1.html) (or web console: Node > Storage > CT Templates > Templates):
 
-```console
+{{< terminal >}}
 root@r720$ pveam update
 update successful
 root@r720$ pveam available --section system | grep ubuntu
@@ -110,31 +115,31 @@ root@r720$ pveam download rusty-dir ubuntu-20.04-standard_20.04-1_amd64.tar.gz
 root@r720$ pveam list rusty-dir
 NAME                                                         SIZE
 rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz      204.28MB
-```
+{{< /terminal >}}
 
 Now that the image is downloaded, time to create a container using [`pct`](https://pve.proxmox.com/pve-docs/pct.1.html) (or web console: Top Left > Create CT):
 
-```console
+{{< terminal >}}
 root@r720$ IMG_PATH='rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
 root@r720$ pct create 101 $IMG_PATH --hostname tmp-ct --rootfs ssd-mirror:8 --net0 name=eth0,bridge=vmbr0,ip=dhcp --password tmp-password --start
-```
+{{< /terminal >}}
 
 To summarize the above, a container was created with id of `101` and a hostname of `tmp-ct`. The additional configuration options are for the filesystem storage and setting up a network interface. A password will need to be set to interact with the container.
 
 To test the Ansible setup, an interactive console is required to add a default user called `rob` with the expected SSH keys:
 
-```console
+{{< terminal >}}
 root@r720$ pct console 101 # login is `root` with the password from `pct create`
 root@tmp-ct$ apt update
 root@tmp-ct$ apt install ssh-import-id
 root@tmp-ct$ adduser rob
 root@tmp-ct$ su rob
 rob@tmp-ct$ ssh-import-id-gh robherley
-```
+{{< /terminal >}}
 
 Now, when all the Ansible hosts are pinged, the new container appears:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible all -m ping
 nuc | SUCCESS => {
     "ansible_facts": {
@@ -164,11 +169,11 @@ piprimary | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-```
+{{< /terminal >}}
 
 It can also be found under the `proxmox_all_running` group mentioned before:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible proxmox_all_running -m ping
 tmp-ct | SUCCESS => {
     "ansible_facts": {
@@ -177,14 +182,14 @@ tmp-ct | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-```
+{{< /terminal >}}
 
 Finally, the temporary container can be cleaned up:
 
-```console
+{{< terminal >}}
 root@r720$ pct stop 101
 root@r720$ pct destroy 101
-```
+{{< /terminal >}}
 
 ## LXC Templates
 
@@ -192,7 +197,7 @@ Now would be a good time to create a template for any other Ubuntu containers th
 
 Make a new container with specific sizing for memory and cpu:
 
-```console
+{{< terminal >}}
 root@r720$ IMG_PATH='rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
 root@r720$ pct create 1000 $IMG_PATH \
 --hostname ubuntu-ct-template \
@@ -202,13 +207,13 @@ root@r720$ pct create 1000 $IMG_PATH \
 --cores 2 \
 --password <root password> \
 --start
-```
+{{< /terminal >}}
 
 Similar to before, go into the container and give it the bare minimal setup for an Ansible connection. But this time, the container will need to be cleaned up so it can be templated.
 
 Add the `ssh-import-id` package, make the `rob` user, import keys, and allow passwordless sudo:
 
-```console
+{{< terminal >}}
 root@r720$ pct console 1000
 root@ubuntu-ct-template$ apt update && apt dist-upgrade
 root@ubuntu-ct-template$ apt install ssh-import-id
@@ -219,19 +224,19 @@ root@ubuntu-ct-template$ su rob
 rob@ubuntu-ct-template$ ssh-import-id-gh robherley
 rob@ubuntu-ct-template$ exit
 root@ubuntu-ct-template$ visudo /etc/sudoers # allow passwordless sudo
-```
+{{< /terminal >}}
 
 Now, here's a minor annoyance. When the container template is copied, it also copies all of the host keys as well, so any cloned container will have the same fingerprint. Those host keys need to be deleted:
 
-```console
+{{< terminal >}}
 root@ubuntu-ct-template$ rm /etc/ssh/ssh_host_*
-```
+{{< /terminal >}}
 
 But, host keys will be required in order to SSH to the container. To rememdy this, I'll make a systemd service to autogenerate host keys at startup:
 
 In `/etc/systemd/system/autohostkeys.service`:
 
-```
+```plaintext
 [Unit]
 Description=Auto Create Host Keys
 
@@ -244,29 +249,29 @@ WantedBy=default.target
 
 Then enable the service (but don't start it):
 
-```console
+{{< terminal >}}
 root@ubuntu-ct-template$ systemctl enable autohostkeys
-```
+{{< /terminal >}}
 
 Finally the container can be shutdown, and converted to a template:
 
-```console
+{{< terminal >}}
 root@r720$ pct shutdown 1000
 root@r720$ pct set 1000 --template 1
-```
+{{< /terminal >}}
 
 Now, time to clone a couple containers and see if they are reachable from Ansible:
 
-```console
+{{< terminal >}}
 root@r720$ pct clone 1000 101 --full --hostname dolly1
 root@r720$ pct clone 1000 102 --full --hostname dolly2
 root@r720$ pct start 101
 root@r720$ pct start 102
-```
+{{< /terminal >}}
 
 And ping the Proxmox running group:
 
-```console
+{{< terminal >}}
 root@r720$ ansible proxmox_all_running -m ping
 dolly2 | SUCCESS => {
     "ansible_facts": {
@@ -282,16 +287,16 @@ dolly1 | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-```
+{{< /terminal >}}
 
 And a quick double check to make sure the host keys generated properly:
 
-```console
+{{< terminal >}}
 rob@dolly1$ cat /etc/ssh/ssh_host_ecdsa_key.pub
 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAWQVuOd8PNu88qXJ+HYevHc0mwiJ1+G1UUravyXm6tDZrxtmDvbzcOqaE2jEb10qLKRV7ILx1RKrxyHWQo2qRk= root@dolly1
 rob@dolly2$ cat /etc/ssh/ssh_host_ecdsa_key.pub
 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOEj3rEWJhb5fWv+IXtKTy3R6xtpOtMeBfAOo6Qq5/wLxoJmoh5kTekoJJ5tuTahycLhedakbY0Zxexjog8a3dY= root@dolly2
-```
+{{< /terminal >}}
 
 Perfect, now containers can be cloned and immediately wired up to Ansible after provision. And to harden them, the new `proxmox_all_running` host group can be added to the existing playbooks.
 

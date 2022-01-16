@@ -1,7 +1,11 @@
 ---
 title: "Homelab Part III: Automation with Ansible and Hardening Access"
-date: 2022-01-09T03:00:00-05:00
+date: 2022-01-11T00:00:00-05:00
 draft: false
+tags:
+  - proxmox
+  - ansible
+  - ssh
 ---
 
 In the previous part of this series, I created a two-node Proxmox cluster along with redundant (ZFS) and shared (NFS) storage. In this part, I'll go over how to connect to the host machines with Ansible, harden access, and setup some minor user management. This'll all be through an automatic, idempotent configuration process.
@@ -18,20 +22,20 @@ Ansible can most likely be found on [your favorite package manager](https://docs
 
 Since Ansible is agentless and uses SSH, each machine will need minor config changes for the initial access. Using password authentication for SSH generally isn't a good idea, so SSH key verification will be used. The [`ssh-import-id`](http://manpages.ubuntu.com/manpages/focal/man1/ssh-import-id.1.html) utility is great for this, it can pull public keys from sources like [GitHub](https://github.com/) or [Canonical Launchpad](https://launchpad.net/) and add them to an authorized keys file. So for each machine (including the Pi) public SSH keys will need to be added. Most cloud providers facilitate this with [cloud-init](https://cloud-init.io/) where any SSH public keys and other first time setup is configured after provision, so machines can be wired up to automation like Ansible without any manual intervention. Later in this guide, cloud-init will be used upon VM creation. But for the current baremetal hosts, a one time manual SSH and pull will suffice:
 
-```console
+{{< terminal >}}
 root@r720$ apt install import-ssh-id
 root@r720$ ssh-import-id-gh robherley
-```
+{{< /terminal >}}
 
-```console
+{{< terminal >}}
 root@nuc$ apt install import-ssh-id
 root@nuc$ ssh-import-id-gh robherley
-```
+{{< /terminal >}}
 
-```console
+{{< terminal >}}
 pi@piprimary$ sudo apt install import-ssh-id
 pi@piprimary$ ssh-import-id-gh robherley
-```
+{{< /terminal >}}
 
 Tedious right? Luckily that's the last time each host will need to be manually accessed.
 
@@ -71,7 +75,7 @@ Notice how the different Ansible users need to be specified, and some are even u
 
 To test that all the configuration is working, the Ansible group `all` can be pinged:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible all -m ping
 nuc | SUCCESS => {
     "ansible_facts": {
@@ -94,7 +98,7 @@ piprimary | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-```
+{{< /terminal >}}
 
 Great! All of the hosts are reachable. Time to start writing some playbooks.
 
@@ -138,9 +142,9 @@ For the playbook `patch-proxmox.yml` above, it'll run three tasks on the `proxmo
 
 To run the playbook:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible-playbook ./playbooks/patch-proxmox.yml
-```
+{{< /terminal >}}
 
 💡 Ansible has some great documentations on the [builtin modules](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html) such as the [`apt`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html#ansible-collections-ansible-builtin-apt-module) and [`apt_repository`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html#ansible-collections-ansible-builtin-apt-repository-module) modules used in the tasks above.
 
@@ -199,9 +203,9 @@ For both the `pi` and `proxmox` host groups, it'll do the following:
 
 And then run the playbook:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible-playbook ./playbooks/setup-sudoers.yml
-```
+{{< /terminal >}}
 
 Now, all the machines should be accessible at `rob@<host>`, without using a password and with the ability to escalate to root.
 
@@ -286,25 +290,25 @@ For both the `pi` and `proxmox` host groups, it'll do the following:
 
 And to run the playbook:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible-playbook ./playbooks/harden-ssh.yml
-```
+{{< /terminal >}}
 
 Now, SSH access via `root` is locked for non-Proxmox hosts:
 
-```console
+{{< terminal >}}
 rob@macbook$ ssh root@192.168.1.254
 root@192.168.1.254: Permission denied (publickey).
-```
+{{< /terminal >}}
 
 But it is accessible via the new user and can escalate when necessary:
-```console
+{{< terminal >}}
 rob@macbook$ ssh rob@192.168.1.254
 rob@piprimary$ id
 uid=1000(rob) gid=1001(rob) groups=1001(rob)
 rob@piprimary$ sudo su - # escalate with no password required!
 root@piprimary$
-```
+{{< /terminal >}}
 
 ## Next
 

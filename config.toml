@@ -1,16 +1,64 @@
-baseURL = 'https://blog.reb.gg/'
-languageCode = 'en-us'
-theme = 'hello-friend'
+theme = "cactus"
+baseURL = "https://blog.reb.gg/"
+languageCode = "en-us"
+title = "rob's blog"
+copyright = "Rob Herley"
+
+[[menu.main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[menu.main]]
+name = "Posts"
+url = "/posts"
+weight = 2
+
+[[menu.main]]
+name = "Tags"
+url = "/tags"
+weight = 3
 
 [params]
-  contentTypeName = "posts"
-  defaultTheme = "dark"
-  showReadingTime = true
+  colortheme = "dark"
+  mainSectionTitle = "Recent posts"
+  tocInline = true
+  rss = true
+  showReadTime = true
+  css = ["css/custom.css"]
+  disablecopy = true
+  dateFormat = "2006 Jan 2"
+  description = "👋 Hey y'all. This blog is my documented journey working with various aspects of technology. I'll try my best to keep things coherent and interesting, and hopefully I can teach a few people along the way."
+  showProjectsList = true
+  showAllPostsArchive = true
+  showAllPostsOnHomePage = true
 
-[languages]
-  [languages.en]
-    title = "rob's blog"
+[[params.social]]
+  name = "github"
+  link = "https://github.com/robherley"
 
-    [languages.en.params.logo]
-      logoText = "rob's blog"
-      logoHomeLink = "/"
+[[params.social]]
+  name = "twitter"
+  link = "https://twitter.com/robherley"
+
+[[params.social]]
+  name = "instagram"
+  link = "https://instagram.com/robherley"
+
+[[params.social]]
+  name = "linkedin"
+  link = "https://www.linkedin.com/in/robherley/"
+
+[markup]
+  [markup.highlight]
+    anchorLineNos = false
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ''
+    lineAnchors = ''
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = 'dracula'
+    tabWidth = 4

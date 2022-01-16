@@ -1,7 +1,12 @@
 ---
 title: "Homelab Part VI: Terraforming Proxmox"
-date: 2022-01-09T06:00:00-05:00
+date: 2022-01-14T00:00:00-05:00
 draft: false
+tags:
+  - proxmox
+  - vm
+  - lxc
+  - terraform
 ---
 
 In the previous part of this series, I configured a template VM with cloud-init configs for zero intervention VM automation after provision.
@@ -28,9 +33,9 @@ Similar to Ansible, an API user for Proxmox will need to be created for Terrafor
 
 On one of the Proxmox nodes, make a `terraform` user, add it to the automation group, and set a password:
 
-```console
+{{< terminal >}}
 root@r720$ pveum user add terraform@pve --groups automation --password <some password>
-```
+{{< /terminal >}}
 
 ## Provider
 
@@ -40,7 +45,7 @@ First, Terrafrom needs to know about the Proxmox provider.
 
 In `terrafrom/main.tf`:
 
-```tf
+```terraform
 terraform {
   required_providers {
     proxmox = {
@@ -53,7 +58,7 @@ terraform {
 
 Then, Terraform can be initialized and install the defined plugin:
 
-```console
+{{< terminal >}}
 rob@macbook$ terraform init
 
 Initializing the backend...
@@ -66,13 +71,13 @@ Initializing provider plugins...
 ...
 
 Terraform has been successfully initialized!
-```
+{{< /terminal >}}
 
 To actually connect Proxmox and Terraform, a provider needs be defined.
 
 In `terraform/providers.tf`:
 
-```tf
+```terraform
 provider "proxmox" {
   pm_parallel     = 1
   pm_tls_insecure = true
@@ -93,7 +98,7 @@ Terraform has input variables, which let you customize aspects of Terraform modu
 
 In `terraform/variables.tf`:
 
-```tf
+```terraform
 variable "pm_api_url" {
   default = "https://192.168.1.100:8006/api2/json"
 }
@@ -119,7 +124,7 @@ Most of these variable blocks are using `default`, which makes the variable opti
 
 In `terraform/terraform.tfvars`, add the `terraform` Proxmox user password:
 
-```tf
+```terraform
 pm_password = "correct-horse-battery-staple"
 ```
 
@@ -127,7 +132,7 @@ Now, the actual resources can be defined. And like anything else in HCL, it's de
 
 In `terraform/resources.tf`:
 
-```tf
+```terraform
 resource "proxmox_vm_qemu" "tf-test" {
   name        = "tf-test"
   target_node = "r720"
@@ -145,7 +150,7 @@ This will create a VM with the name `tf-test`, which will be a full clone of `va
 
 To plan the change, run `terraform plan`:
 
-```console
+{{< terminal >}}
 rob@macbook$ $ terraform plan
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following
@@ -197,11 +202,11 @@ Terraform will perform the following actions:
     }
 
 ...
-```
+{{< /terminal >}}
 
 Once the plan is confirmed to be okay, it can be applied:
 
-```console
+{{< terminal >}}
 rob@macbook$ $ terraform apply
 ...
 
@@ -215,11 +220,11 @@ proxmox_vm_qemu.tf-test: Still creating... [1m0s elapsed]
 proxmox_vm_qemu.tf-test: Creation complete after 1m3s [id=r720/qemu/101]
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-```
+{{< /terminal >}}
 
 Now to double check with Ansible:
 
-```console
+{{< terminal >}}
 rob@macbook$ ansible proxmox_all_running -m ping
 tf-test | SUCCESS => {
     "ansible_facts": {
@@ -228,17 +233,17 @@ tf-test | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-```
+{{< /terminal >}}
 
 Perfect! The homelab infrastructure is now fully declarative and automated.
 
 ❗**Note:** during testing, I have found the provider to be flaky at points when determining if the VM or LXC is created or not. Apparently this is a [known issue](https://github.com/Telmate/terraform-provider-proxmox/issues/480#issuecomment-1005949219) with the provider, due to a bug when interacting with Proxmox conf locks. Either the provider can be downgraded to version `2.8.0` or existing resources can be imported into Terraform's state like so:
 
-```console
-rob@macbook$ # terraform import <resource type>.<resource name> <node>/<type>/<vmid>
+{{< terminal >}}
+# terraform import <resource type>.<resource name> <node>/<type>/<vmid>
 rob@macbook$ terraform import proxmox_vm_qemu.tf-test r720/qemu/101
-```
+{{< /terminal >}}
 
-## Next
+## Conclusion
 
-Well, that's it for the homelab series! I think six parts is enough to conclude. The homelab is now a fully operational virtualization cluster with redundant ZFS (and NFS) storage, VM/LXC templates, automated with Ansible and provisioned via IaC with Terraform. There _may_ be separate one-offs for TrueNAS, Kubernetes or OpenShift clusters, but no promises. 😉 Thanks for tagging along!
+Well, that's it for the homelab series! I think six parts is enough to conclude. The homelab is now a fully operational virtualization cluster with redundant ZFS (and NFS) storage, VM/LXC templates, automated with Ansible and provisioned via IaC with Terraform. There _may_ be separate one-offs for TrueNAS, Kubernetes or OpenShift clusters, but no promises. Thanks for tagging along!

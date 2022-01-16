@@ -1,0 +1,3 @@
+{{ $trimmed := trim .Inner "\n" }}
+{{ $high := highlight $trimmed "bash" }}
+{{ replaceRE `(?P<prompt>(\w|-)+@(\w|-)+\$ )` `<span style="color:#50fa7b;user-select:none;">$prompt</span>` $high | safeHTML }}

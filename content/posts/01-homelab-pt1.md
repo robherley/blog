@@ -1,7 +1,11 @@
 ---
 title: "Homelab Part I: Intro, Hardware and Proxmox install"
-date: 2022-01-09T01:00:00-05:00
+date: 2022-01-09T00:00:00-05:00
 draft: false
+tags:
+  - proxmox
+  - zfs
+  - hardware
 ---
 
 👋 Hey y'all, welcome to the start of my homelab (or, the latest iteration of it). I'm documenting my homelab setup as a helpful guide for others to learn, detailing some of the annoying issues I encountered and some of the duct tape solutions. These are also backup instructions for when I inevitably scrap this homelab, rebuild, and forget how I did everything.
