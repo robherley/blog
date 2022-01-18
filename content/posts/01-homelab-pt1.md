@@ -87,7 +87,7 @@ This entire rack is next to my desk, so reducing the amount of noise it makes is
 
 ### Drive caddies
 
-I didn't have any extra of the OEM Dell drive caddies for the three SSDs I'm installing into the poweredge. Luckily, [someone on thingiverse](https://www.thingiverse.com/thing:2491236/) made these really sweet models that resememble mini versions of the poweredge. They are sturdy enough to reliably hold the SSDs in place, but I would recommend them for spinning rust.
+I didn't have any extra of the OEM Dell drive caddies for the three SSDs I'm installing into the poweredge. Luckily, [someone on thingiverse](https://www.thingiverse.com/thing:2491236/) made these really sweet models that resememble mini versions of the poweredge. They are sturdy enough to reliably hold the SSDs in place, but I would not recommend them for spinning rust.
 
 ![3D Printed Caddies](/homelab/caddies.png)
 
