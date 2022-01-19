@@ -20,10 +20,10 @@ url = "/tags"
 weight = 3
 
 [params]
+  author = "Rob Herley"
   colortheme = "dark"
   mainSectionTitle = "Recent posts"
   tocInline = true
-  rss = true
   showReadTime = true
   css = ["css/custom.css"]
   disablecopy = true
@@ -62,3 +62,6 @@ weight = 3
     noClasses = true
     style = 'dracula'
     tabWidth = 4
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
