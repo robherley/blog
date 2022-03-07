@@ -6,8 +6,7 @@
 <link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge">
-<title> Homelab Part III: Automation with Ansible and Hardening Access | rob's blog</title>
-<link rel=canonical href=https://blog.reb.gg/posts/03-homelab-pt3/>
+<title> Homelab Part III: Automation with Ansible and Hardening Access | rob's blog</title><link rel=canonical href=https://blog.reb.gg/posts/03-homelab-pt3/>
 <meta name=description content="👋 Hey y'all. This blog is my documented journey working with various aspects of technology. I'll try my best to keep things coherent and interesting, and hopefully I can teach a few people along the way.">
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=robots content="all,follow">
@@ -28,46 +27,37 @@ What is Ansible? Ansible is a great automation platform from Red Hat (they bough
 <script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]-->
 <link rel=icon type=image/png href=https://blog.reb.gg/images/favicon.ico>
 <script defer data-domain=blog.reb.gg src=https://a.reb.gg/js/a.js></script>
-</head>
-<body class="max-width mx-auto px3 ltr">
+<script async src=https://unpkg.com/mermaid@latest/dist/mermaid.min.js></script>
+</head><body class="max-width mx-auto px3 ltr">
 <div class="content index py4">
 <div id=header-post>
 <a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
 <a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
-<a id=top-icon-tablet href=# onclick="$('html, body').animate({scrollTop:0},'fast')" style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
 <span id=menu>
 <span id=nav>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</span>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></span>
 <br>
 <span id=actions>
 <ul>
 <li>
 <a class=icon href=https://blog.reb.gg/posts/02-homelab-pt2/ aria-label=Previous>
-<i class="fas fa-chevron-left" aria-hidden=true onmouseover="$('#i-prev').toggle()" onmouseout="$('#i-prev').toggle()"></i>
+<i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=https://blog.reb.gg/posts/04-homelab-pt4/ aria-label=Next>
-<i class="fas fa-chevron-right" aria-hidden=true onmouseover="$('#i-next').toggle()" onmouseout="$('#i-next').toggle()"></i>
+<i class="fas fa-chevron-right" aria-hidden=true onmouseover='$("#i-next").toggle()' onmouseout='$("#i-next").toggle()'></i>
 </a>
-</li>
-<li>
-<a class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
-<i class="fas fa-chevron-up" aria-hidden=true onmouseover="$('#i-top').toggle()" onmouseout="$('#i-top').toggle()"></i>
+</li><li>
+<a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
+<i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=# aria-label=Share>
-<i class="fas fa-share-alt" aria-hidden=true onmouseover="$('#i-share').toggle()" onmouseout="$('#i-share').toggle()" onclick="return $('#share').toggle(),!1"></i>
+<i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i>
 </a>
-</li>
-</ul>
-<span id=i-prev class=info style=display:none>Previous post</span>
+</li></ul><span id=i-prev class=info style=display:none>Previous post</span>
 <span id=i-next class=info style=display:none>Next post</span>
 <span id=i-top class=info style=display:none>Back to top</span>
 <span id=i-share class=info style=display:none>Share post</span>
@@ -79,403 +69,275 @@ What is Ansible? Ansible is a great automation platform from Red Hat (they bough
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f" aria-label=Facebook>
 <i class="fab fa-facebook" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&text=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Twitter>
 <i class="fab fa-twitter" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&title=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Linkedin>
 <i class="fab fa-linkedin" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&is_video=false&description=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Pinterest>
 <i class="fab fa-pinterest" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f" aria-label=Email>
 <i class="fas fa-envelope" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&title=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Pocket>
 <i class="fab fa-get-pocket" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&title=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=reddit>
 <i class="fab fa-reddit" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&name=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20created%20a%20two-node%20Proxmox%20cluster%20along%20with%20redundant%20%28ZFS%29%20and%20shared%20%28NFS%29%20storage.%20In%20this%20part%2c%20I%26rsquo%3bll%20go%20over%20how%20to%20connect%20to%20the%20host%20machines%20with%20Ansible%2c%20harden%20access%2c%20and%20setup%20some%20minor%20user%20management.%20This%26rsquo%3bll%20all%20be%20through%20an%20automatic%2c%20idempotent%20configuration%20process.%0aWhat%20is%20Ansible%3f%20Ansible%20is%20a%20great%20automation%20platform%20from%20Red%20Hat%20%28they%20bought%20AnsibleWorks%29%2c%20and%20it%26rsquo%3bs%20an%20extremely%20popular%20tool%20making%20it%20a%20great%20learning%20exercise%20for%20the%20homelab." aria-label=Tumblr>
 <i class="fab fa-tumblr" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&t=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label="Hacker News">
 <i class="fab fa-hacker-news" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-</span>
-</div>
-<div style=margin-bottom:2rem>
+</li></ul></div></span>
+</div><div style=margin-bottom:2rem>
 <a href=https://blog.reb.gg/><i class="fas fa-angle-left"></i> Back</a>
-</div>
-<article class=post itemscope itemtype=http://schema.org/BlogPosting>
+</div><article class=post itemscope itemtype=http://schema.org/BlogPosting>
 <header>
 <h1 class=posttitle itemprop="name headline">
 Homelab Part III: Automation with Ansible and Hardening Access
-</h1>
-<div class=meta>
+</h1><div class=meta>
 <div class=postdate>
 <time datetime="2022-01-11 00:00:00 -0500 -0500" itemprop=datePublished>2022 Jan 11</time>
-</div>
-<div class=article-read-time>
+</div><div class=article-read-time>
 <i class="far fa-clock"></i>
 7 minute read
-</div>
-<div class=article-tag>
+</div><div class=article-tag>
 <i class="fas fa-tag"></i>
 <a class=tag-link href=/tags/proxmox rel=tag>proxmox</a>
 ,
 <a class=tag-link href=/tags/ansible rel=tag>ansible</a>
 ,
 <a class=tag-link href=/tags/ssh rel=tag>ssh</a>
-</div>
-</div>
-</header>
-<div id=toc>
+</div></div></header><div id=toc>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#what-is-ansible>What is Ansible?</a></li>
-<li><a href=#installing-ansible-locally>Installing Ansible locally</a></li>
-<li><a href=#adding-ssh-keys-for-controlled-access>Adding SSH keys for controlled access</a></li>
-<li><a href=#ansible-directory-configuration-and-inventory>Ansible directory, configuration and inventory</a></li>
-<li><a href=#playbooks>Playbooks</a>
+<li><a href=#what-is-ansible>What is Ansible?</a></li><li><a href=#installing-ansible-locally>Installing Ansible locally</a></li><li><a href=#adding-ssh-keys-for-controlled-access>Adding SSH keys for controlled access</a></li><li><a href=#ansible-directory-configuration-and-inventory>Ansible directory, configuration and inventory</a></li><li><a href=#playbooks>Playbooks</a>
 <ul>
-<li><a href=#fixing-proxmox-repositories>Fixing proxmox repositories</a></li>
-<li><a href=#add-a-sudoer>Add a sudoer</a></li>
-<li><a href=#harden-ssh>Harden SSH</a></li>
-</ul>
-</li>
-<li><a href=#next>Next</a></li>
-</ul>
-</nav>
-</div>
-<div class=content itemprop=articleBody>
-<p>In the previous part of this series, I created a two-node Proxmox cluster along with redundant (ZFS) and shared (NFS) storage. In this part, I&rsquo;ll go over how to connect to the host machines with Ansible, harden access, and setup some minor user management. This&rsquo;ll all be through an automatic, idempotent configuration process.</p>
-<h2 id=what-is-ansible>What is Ansible?</h2>
-<p>Ansible is a great automation platform from Red Hat (they bought AnsibleWorks), and it&rsquo;s an extremely popular tool making it a great learning exercise for the homelab. It has an agentless architecture, so it&rsquo;s super simple to setup only requiring an SSH connection. I&rsquo;ll use my laptop to manage Ansible to the controlled machines. In a &ldquo;real world&rdquo; environment, this would typically be done on a <a href=https://en.wikipedia.org/wiki/Bastion_host>bastion</a>.</p>
-<h2 id=installing-ansible-locally>Installing Ansible locally</h2>
-<p>Ansible can most likely be found on <a href=https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-specific-operating-systems>your favorite package manager</a>, but it can also be installed via <a href=https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible-with-pip><code>pip</code></a>. We&rsquo;ll be making <a href=https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html>playbooks</a> to handle some of the automation of our homelab.</p>
-<h2 id=adding-ssh-keys-for-controlled-access>Adding SSH keys for controlled access</h2>
-<p>Since Ansible is agentless and uses SSH, each machine will need minor config changes for the initial access. Using password authentication for SSH generally isn&rsquo;t a good idea, so SSH key verification will be used. The <a href=http://manpages.ubuntu.com/manpages/focal/man1/ssh-import-id.1.html><code>ssh-import-id</code></a> utility is great for this, it can pull public keys from sources like <a href=https://github.com/>GitHub</a> or <a href=https://launchpad.net/>Canonical Launchpad</a> and add them to an authorized keys file. So for each machine (including the Pi) public SSH keys will need to be added. Most cloud providers facilitate this with <a href=https://cloud-init.io/>cloud-init</a> where any SSH public keys and other first time setup is configured after provision, so machines can be wired up to automation like Ansible without any manual intervention. Later in this guide, cloud-init will be used upon VM creation. But for the current baremetal hosts, a one time manual SSH and pull will suffice:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>apt install import-ssh-id
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>ssh-import-id-gh robherley</code></pre></div>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@nuc$ </span>apt install import-ssh-id
-<span style=color:#50fa7b;user-select:none>root@nuc$ </span>ssh-import-id-gh robherley</code></pre></div>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>pi@piprimary$ </span>sudo apt install import-ssh-id
-<span style=color:#50fa7b;user-select:none>pi@piprimary$ </span>ssh-import-id-gh robherley</code></pre></div>
-<p>Tedious right? Luckily that&rsquo;s the last time each host will need to be manually accessed.</p>
-<h2 id=ansible-directory-configuration-and-inventory>Ansible directory, configuration and inventory</h2>
-<p>Ansible loves being <a href=https://docs.ansible.com/ansible/2.3/playbooks_best_practices.html#content-organization>organized</a>, but some of the recommendations are overkill for my size of a homelab. This homelab will be condensed to mostly just playbooks, avoiding roles altogether. This directory is hosted on GitHub at <a href=https://github.com/robherley/homelab/tree/main/ansible>robherley/homelab</a>.</p>
-<p>Within an <code>ansible</code> directory, start by making an extremely basic <code>ansible.cfg</code>. This&rsquo;ll set some defaults for any of the Ansible commands:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ini data-lang=ini><span style=color:#ff79c6>[defaults]</span>
-<span style=color:#50fa7b>inventory</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>inventory ; the inventory directory</span>
-<span style=color:#50fa7b>vault_password_file</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>.vault_password ; password used for encrypting private values</span>
-<span style=color:#50fa7b>private_key_file</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>~/.ssh/id_ed25519_gmail ; path to SSH private key</span>
-</code></pre></div><p>Then, make a <code>.vault_password</code> file. This is the password that&rsquo;ll be used to encrypt secrets with <a href=https://docs.ansible.com/ansible/latest/user_guide/vault.html>Ansible Vault</a>. That way, configuration can be commited to git without worrying about sensitive data (like passwords) being exposed. But it&rsquo;s also important to <strong><em>not commit</em></strong> this file to git with the rest of the configuration. This&rsquo;ll just be a plaintext file that contains a password, ie:</p>
-<pre tabindex=0><code>correct-horse-battery-staple
-</code></pre><p>Next is the <code>inventory</code> directory, with a <code>hosts</code> file inside of it. An <a href=https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html>inventory</a> is a very important construct in Ansible, it&rsquo;s a grouped list of the managed machines and some metadata on how to access them. The r720 and the NUC will be in a <code>proxmox</code> group, and the Raspberry Pi in a group of it&rsquo;s own called <code>pi</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ini data-lang=ini><span style=color:#ff79c6>[proxmox]</span>
-<span style=color:#50fa7b>r720 ansible_host</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>192.168.1.100 ansible_user=root</span>
-<span style=color:#50fa7b>nuc ansible_host</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>192.168.1.200 ansible_user=root</span>
-
-<span style=color:#ff79c6>[pi]</span>
-<span style=color:#50fa7b>piprimary ansible_host</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>192.168.1.254 ansible_user=pi</span>
-
-<span style=color:#6272a4>; note: all hosts are implicitly in the &#34;all&#34; group as well!</span>
-</code></pre></div><p>Notice how the different Ansible users need to be specified, and some are even using the root user. It&rsquo;s better practice to have users that can escalate their priviledges when necessary (instead of <code>root</code> directly), so that&rsquo;ll change that in a bit.</p>
-<p>To test that all the configuration is working, the Ansible group <code>all</code> can be pinged:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible all -m ping
-nuc | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span>
-r720 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span>
-piprimary | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span></code></pre></div>
-<p>Great! All of the hosts are reachable. Time to start writing some playbooks.</p>
-<h2 id=playbooks>Playbooks</h2>
-<p>Playbooks are simply a set of tasks that need to run on hosts. The following playbooks will handle repeated tasks across the machines.</p>
-<h3 id=fixing-proxmox-repositories>Fixing proxmox repositories</h3>
-<p>By default, Proxmox attempts to use a paid <code>pve-enterprise</code> repository for its Debian packages. Luckily these can be switched out to the free <code>pve-no-subscription</code> packages. These are noted as &ldquo;less stable&rdquo; than the enterpise packages, but this is a homelab after all. You can read more about the Proxmox packages <a href=https://pve.proxmox.com/wiki/Package_Repositories>on their wiki</a>.</p>
-<p>In <code>ansible/playbooks/patch-proxmox.yml</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml>- <span style=color:#ff79c6>name</span>: patch-proxmox
-  <span style=color:#ff79c6>become</span>: <span style=color:#ff79c6>yes</span>
-  <span style=color:#ff79c6>hosts</span>:
-    - proxmox
-  <span style=color:#ff79c6>tasks</span>:
-    - <span style=color:#ff79c6>name</span>: add pve-no-subscription repository
-      <span style=color:#ff79c6>apt_repository</span>:
-        <span style=color:#ff79c6>repo</span>: deb http://download.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-no-subscription
-        <span style=color:#ff79c6>state</span>: present
-        <span style=color:#ff79c6>update_cache</span>: <span style=color:#ff79c6>no</span>
-    - <span style=color:#ff79c6>name</span>: remove pve-enterprise repository
-      <span style=color:#ff79c6>apt_repository</span>:
-        <span style=color:#ff79c6>repo</span>: deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise
-        <span style=color:#ff79c6>state</span>: absent
-        <span style=color:#ff79c6>update_cache</span>: <span style=color:#ff79c6>no</span>
-    - <span style=color:#ff79c6>name</span>: update pkg cache and dist-upgrade
-      <span style=color:#ff79c6>apt</span>:
-        <span style=color:#ff79c6>update_cache</span>: <span style=color:#ff79c6>yes</span>
-        <span style=color:#ff79c6>upgrade</span>: <span style=color:#f1fa8c>&#39;dist&#39;</span>
-</code></pre></div><p>For the playbook <code>patch-proxmox.yml</code> above, it&rsquo;ll run three tasks on the <code>proxmox</code> group of hosts (the <code>r720</code> and <code>nuc</code>):</p>
-<ol>
-<li>Add the Proxmox <code>pve-no-subscription</code> debian repo based on the host&rsquo;s distribution release.</li>
-<li>Remove the Proxmox <code>pve-enterprise</code> debian repo.</li>
-<li>Run <code>apt update && apt dist-upgrade</code>.</li>
-</ol>
-<p>To run the playbook:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-playbook ./playbooks/patch-proxmox.yml</code></pre></div>
-<p>💡 Ansible has some great documentations on the <a href=https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html>builtin modules</a> such as the <a href=https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html#ansible-collections-ansible-builtin-apt-module><code>apt</code></a> and <a href=https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html#ansible-collections-ansible-builtin-apt-repository-module><code>apt_repository</code></a> modules used in the tasks above.</p>
-<h3 id=add-a-sudoer>Add a sudoer</h3>
-<p>As mentioned before, the <code>root</code> user is being used on the Proxmox hosts and <code>pi</code> user on the Raspberry Pi. It would be better to have a common known user as an entrypoint for automation, which is what the following playbook will do.</p>
-<p>In <code>ansible/playbooks/setup-sudoers.yml</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml>- <span style=color:#ff79c6>name</span>: add sudoers with ssh keys
-  <span style=color:#ff79c6>hosts</span>:
-    - proxmox
-    - pi
-  <span style=color:#ff79c6>become</span>: <span style=color:#ff79c6>yes</span>
-  <span style=color:#ff79c6>gather_facts</span>: <span style=color:#ff79c6>no</span>
-  <span style=color:#ff79c6>vars</span>:
-    <span style=color:#ff79c6>users</span>:
-      - <span style=color:#ff79c6>name</span>: rob
-        <span style=color:#ff79c6>github</span>: robherley
-        <span style=color:#ff79c6>password</span>: $6$himalayan$E.K7G4g7NoIW69HLpmK1QDU1JMN4aaSYPOOGX1SwoSl.uqr64JruCEeDH0nLi9CxJR1/2HGTnTDVKfCC2ubub1
-  <span style=color:#ff79c6>tasks</span>:
-    - <span style=color:#ff79c6>name</span>: add sudo
-      <span style=color:#ff79c6>apt</span>:
-        <span style=color:#ff79c6>name</span>: sudo
-        <span style=color:#ff79c6>state</span>: present
-    - <span style=color:#ff79c6>name</span>: add user
-      <span style=color:#ff79c6>user</span>:
-        <span style=color:#ff79c6>name</span>: <span style=color:#f1fa8c>&#34;{{ item.name }}&#34;</span>
-        <span style=color:#ff79c6>password</span>: <span style=color:#f1fa8c>&#34;{{ item.password }}&#34;</span>
-        <span style=color:#ff79c6>shell</span>: /bin/bash
-      <span style=color:#ff79c6>with_items</span>: <span style=color:#f1fa8c>&#34;{{ users }}&#34;</span>
-    - <span style=color:#ff79c6>name</span>: enable passwordless sudo
-      <span style=color:#ff79c6>lineinfile</span>:
-        <span style=color:#ff79c6>dest</span>: /etc/sudoers.d/99-ansible-users
-        <span style=color:#ff79c6>state</span>: present
-        <span style=color:#ff79c6>mode</span>: <span style=color:#bd93f9>0440</span>
-        <span style=color:#ff79c6>create</span>: <span style=color:#ff79c6>yes</span>
-        <span style=color:#ff79c6>regexp</span>: <span style=color:#f1fa8c>&#39;^{{ item.name }}&#39;</span>
-        <span style=color:#ff79c6>line</span>: <span style=color:#f1fa8c>&#39;{{ item.name }} ALL=(ALL) NOPASSWD: ALL&#39;</span>
-        <span style=color:#ff79c6>validate</span>: <span style=color:#f1fa8c>&#39;visudo -cf %s&#39;</span>
-      <span style=color:#ff79c6>with_items</span>: <span style=color:#f1fa8c>&#34;{{ users }}&#34;</span>
-    - <span style=color:#ff79c6>name</span>: add keys from github
-      <span style=color:#ff79c6>authorized_key</span>:
-        <span style=color:#ff79c6>key</span>: <span style=color:#f1fa8c>&#34;https://github.com/{{ item.github }}.keys&#34;</span>
-        <span style=color:#ff79c6>user</span>: <span style=color:#f1fa8c>&#34;{{ item.name }}&#34;</span>
-      <span style=color:#ff79c6>with_items</span>: <span style=color:#f1fa8c>&#34;{{ users }}&#34;</span>
-</code></pre></div><p>For both the <code>pi</code> and <code>proxmox</code> host groups, it&rsquo;ll do the following:</p>
-<ol>
-<li>Make sure <code>sudo</code> is present on the machines.</li>
-<li>Enable passwordless sudo for any user in the <code>sudo</code> group. The <code>lineinfile</code> also has a handy validation function which will validate the changes on a temporary file before overwriting. This way the sudoers file doesn&rsquo;t accidentally get borked.</li>
-<li>For every <code>item</code> in the <code>users</code> var, create a user with <code>item.name</code>. The contents for <code>item.password</code> end up <em>exact</em> in <code>/etc/shadow</code>, so it must be hashed and salted beforehand. To do this, it can be generated with <code>openssl passwd -6 -salt &lt;salt> &lt;password></code>.</li>
-<li>For every <code>item</code> in the <code>users</code> var, add authorized keys from GitHub based on the <code>item.github</code> key. This is similar to previous steps with <code>ssh-import-id</code>, but this is adding the public keys for the newly created user.</li>
-</ol>
-<p>And then run the playbook:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-playbook ./playbooks/setup-sudoers.yml</code></pre></div>
-<p>Now, all the machines should be accessible at <code>rob@&lt;host></code>, without using a password and with the ability to escalate to root.</p>
-<p>The <code>ansible_user</code> attributes can now be removed from the <code>inventory</code> file:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff>[proxmox]
-<span style=color:#f55>- r720 ansible_host=192.168.1.100 ansible_user=root
-</span><span style=color:#f55></span><span style=color:#50fa7b;font-weight:700>+ r720 ansible_host=192.168.1.100
-</span><span style=color:#50fa7b;font-weight:700></span><span style=color:#f55>- nuc ansible_host=192.168.1.200 ansible_user=root
-</span><span style=color:#f55></span><span style=color:#50fa7b;font-weight:700>+ nuc ansible_host=192.168.1.200
-</span><span style=color:#50fa7b;font-weight:700></span>
-[pi]
-<span style=color:#f55>- piprimary ansible_host=192.168.1.254 ansible_user=pi
-</span><span style=color:#f55></span><span style=color:#50fa7b;font-weight:700>+ piprimary ansible_host=192.168.1.254
-</span></code></pre></div><p>And set the default remote user in <code>ansible.cfg</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff>[defaults]
-inventory=inventory
-vault_password_file=.vault_password
-private_key_file=~/.ssh/id_ed25519_gmailkey
-<span style=color:#50fa7b;font-weight:700>+ remote_user=rob
-</span></code></pre></div><p>Then verify that the remotes are still reachable with <code>ansible all -m ping</code>. If this command fails, the configuration is incorrect.</p>
-<h3 id=harden-ssh>Harden SSH</h3>
-<p>Now that there&rsquo;s a separate user as an entrypoint (with SSH keys), <code>root</code> access can be disabled* as well as password access for SSH:</p>
-<p>In <code>ansible/playbooks/harden-ssh.yml</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml>- <span style=color:#ff79c6>name</span>: harden ssh connection
-  <span style=color:#ff79c6>become</span>: <span style=color:#ff79c6>yes</span>
-  <span style=color:#ff79c6>hosts</span>:
-    - proxmox
-    - pi
-  <span style=color:#ff79c6>tasks</span>:
-    - <span style=color:#ff79c6>name</span>: assert non-root user
-      <span style=color:#ff79c6>assert</span>:
-        <span style=color:#ff79c6>that</span>:
-          - ansible_user != &#34;root&#34;
-        <span style=color:#ff79c6>fail_msg</span>: <span style=color:#f1fa8c>&#34;must run this playbook as non-root to ensure SSH works&#34;</span>
-        <span style=color:#ff79c6>success_msg</span>: <span style=color:#f1fa8c>&#34;successfully connected as non-root!&#34;</span>
-    - <span style=color:#ff79c6>name</span>: disable password login
-      <span style=color:#ff79c6>lineinfile</span>:
-        <span style=color:#ff79c6>dest</span>: /etc/ssh/sshd_config
-        <span style=color:#ff79c6>state</span>: present
-        <span style=color:#ff79c6>regexp</span>: <span style=color:#f1fa8c>&#39;^PasswordAuthentication&#39;</span>
-        <span style=color:#ff79c6>line</span>: <span style=color:#f1fa8c>&#39;PasswordAuthentication no&#39;</span>
-        <span style=color:#ff79c6>validate</span>: <span style=color:#f1fa8c>&#39;sshd -t -f %s&#39;</span>
-      <span style=color:#ff79c6>notify</span>:
-        - restart-sshd
-    - <span style=color:#ff79c6>name</span>: disable root login
-      <span style=color:#ff79c6>when</span>: <span style=color:#f1fa8c>&#34;&#39;proxmox&#39; not in group_names&#34;</span>
-      <span style=color:#ff79c6>lineinfile</span>:
-        <span style=color:#ff79c6>dest</span>: /etc/ssh/sshd_config
-        <span style=color:#ff79c6>state</span>: present
-        <span style=color:#ff79c6>regexp</span>: <span style=color:#f1fa8c>&#39;^PermitRootLogin&#39;</span>
-        <span style=color:#ff79c6>line</span>: <span style=color:#f1fa8c>&#39;PermitRootLogin no&#39;</span>
-        <span style=color:#ff79c6>validate</span>: <span style=color:#f1fa8c>&#39;sshd -t -f %s&#39;</span>
-      <span style=color:#ff79c6>notify</span>:
-        - restart-sshd
-  <span style=color:#ff79c6>handlers</span>:
-    - <span style=color:#ff79c6>name</span>: restart-sshd
-      <span style=color:#ff79c6>service</span>:
-        <span style=color:#ff79c6>name</span>: sshd
-        <span style=color:#ff79c6>state</span>: restarted
-</code></pre></div><p>For both the <code>pi</code> and <code>proxmox</code> host groups, it&rsquo;ll do the following:</p>
-<ol>
-<li>A basic assert on the current <code>ansible_user</code> to make sure it isn&rsquo;t using root to connect.</li>
-<li>Disabling password login for ssh, and validating with <code>sshd -t</code>.</li>
-<li>Disabling root login for ssh, and validating with <code>sshd -t</code>. Note there&rsquo;s a special <code>when</code> statement checking if the current host is in the <code>proxmox</code> group. *We want to leave root login enabled for these, since Proxmox requires root SSH for the web console shell access and for live migration.</li>
-</ol>
-<p>💡 These tasks also use a <a href=https://docs.ansible.com/ansible/latest/user_guide/playbooks_handlers.html><code>handler</code></a> to execute an additional action only after the task has <em>changed</em>. In the case above, anytime we the sshd configuration changes, the service is restarted.</p>
-<p>And to run the playbook:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-playbook ./playbooks/harden-ssh.yml</code></pre></div>
-<p>Now, SSH access via <code>root</code> is locked for non-Proxmox hosts:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ssh root@192.168.1.254
-root@192.168.1.254: Permission denied <span style=color:#ff79c6>(</span>publickey<span style=color:#ff79c6>)</span>.</code></pre></div>
-<p>But it is accessible via the new user and can escalate when necessary:
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ssh rob@192.168.1.254
-<span style=color:#50fa7b;user-select:none>rob@piprimary$ </span>id
-<span style=color:#8be9fd;font-style:italic>uid</span><span style=color:#ff79c6>=</span>1000<span style=color:#ff79c6>(</span>rob<span style=color:#ff79c6>)</span> <span style=color:#8be9fd;font-style:italic>gid</span><span style=color:#ff79c6>=</span>1001<span style=color:#ff79c6>(</span>rob<span style=color:#ff79c6>)</span> <span style=color:#8be9fd;font-style:italic>groups</span><span style=color:#ff79c6>=</span>1001<span style=color:#ff79c6>(</span>rob<span style=color:#ff79c6>)</span>
-<span style=color:#50fa7b;user-select:none>rob@piprimary$ </span>sudo su - <span style=color:#6272a4># escalate with no password required!</span>
-root@piprimary$</code></pre></div></p>
-<h2 id=next>Next</h2>
-<p>All of the groundwork for homelab automation is now in place, and easily extendable. In the next part, I&rsquo;ll dive deeper into automated Proxmox management and container templating.</p>
-</div>
-</article>
-<div style="margin:2rem 0">
+<li><a href=#fixing-proxmox-repositories>Fixing proxmox repositories</a></li><li><a href=#add-a-sudoer>Add a sudoer</a></li><li><a href=#harden-ssh>Harden SSH</a></li></ul></li><li><a href=#next>Next</a></li></ul></nav></div><div class=content itemprop=articleBody>
+<p>In the previous part of this series, I created a two-node Proxmox cluster along with redundant (ZFS) and shared (NFS) storage. In this part, I&rsquo;ll go over how to connect to the host machines with Ansible, harden access, and setup some minor user management. This&rsquo;ll all be through an automatic, idempotent configuration process.</p><h2 id=what-is-ansible>What is Ansible?</h2><p>Ansible is a great automation platform from Red Hat (they bought AnsibleWorks), and it&rsquo;s an extremely popular tool making it a great learning exercise for the homelab. It has an agentless architecture, so it&rsquo;s super simple to setup only requiring an SSH connection. I&rsquo;ll use my laptop to manage Ansible to the controlled machines. In a &ldquo;real world&rdquo; environment, this would typically be done on a <a href=https://en.wikipedia.org/wiki/Bastion_host>bastion</a>.</p><h2 id=installing-ansible-locally>Installing Ansible locally</h2><p>Ansible can most likely be found on <a href=https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-specific-operating-systems>your favorite package manager</a>, but it can also be installed via <a href=https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible-with-pip><code>pip</code></a>. We&rsquo;ll be making <a href=https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html>playbooks</a> to handle some of the automation of our homelab.</p><h2 id=adding-ssh-keys-for-controlled-access>Adding SSH keys for controlled access</h2><p>Since Ansible is agentless and uses SSH, each machine will need minor config changes for the initial access. Using password authentication for SSH generally isn&rsquo;t a good idea, so SSH key verification will be used. The <a href=http://manpages.ubuntu.com/manpages/focal/man1/ssh-import-id.1.html><code>ssh-import-id</code></a> utility is great for this, it can pull public keys from sources like <a href=https://github.com/>GitHub</a> or <a href=https://launchpad.net/>Canonical Launchpad</a> and add them to an authorized keys file. So for each machine (including the Pi) public SSH keys will need to be added. Most cloud providers facilitate this with <a href=https://cloud-init.io/>cloud-init</a> where any SSH public keys and other first time setup is configured after provision, so machines can be wired up to automation like Ansible without any manual intervention. Later in this guide, cloud-init will be used upon VM creation. But for the current baremetal hosts, a one time manual SSH and pull will suffice:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>apt install import-ssh-id
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>ssh-import-id-gh robherley</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@nuc$ </span>apt install import-ssh-id
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@nuc$ </span>ssh-import-id-gh robherley</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>pi@piprimary$ </span>sudo apt install import-ssh-id
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>pi@piprimary$ </span>ssh-import-id-gh robherley</span></span></code></pre></div><p>Tedious right? Luckily that&rsquo;s the last time each host will need to be manually accessed.</p><h2 id=ansible-directory-configuration-and-inventory>Ansible directory, configuration and inventory</h2><p>Ansible loves being <a href=https://docs.ansible.com/ansible/2.3/playbooks_best_practices.html#content-organization>organized</a>, but some of the recommendations are overkill for my size of a homelab. This homelab will be condensed to mostly just playbooks, avoiding roles altogether. This directory is hosted on GitHub at <a href=https://github.com/robherley/homelab/tree/main/ansible>robherley/homelab</a>.</p><p>Within an <code>ansible</code> directory, start by making an extremely basic <code>ansible.cfg</code>. This&rsquo;ll set some defaults for any of the Ansible commands:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ini data-lang=ini><span style=display:flex><span><span style=color:#ff79c6>[defaults]</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b>inventory</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>inventory ; the inventory directory</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b>vault_password_file</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>.vault_password ; password used for encrypting private values</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b>private_key_file</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>~/.ssh/id_ed25519_gmail ; path to SSH private key</span>
+</span></span></code></pre></div><p>Then, make a <code>.vault_password</code> file. This is the password that&rsquo;ll be used to encrypt secrets with <a href=https://docs.ansible.com/ansible/latest/user_guide/vault.html>Ansible Vault</a>. That way, configuration can be commited to git without worrying about sensitive data (like passwords) being exposed. But it&rsquo;s also important to <strong><em>not commit</em></strong> this file to git with the rest of the configuration. This&rsquo;ll just be a plaintext file that contains a password, ie:</p><pre tabindex=0><code>correct-horse-battery-staple
+</code></pre><p>Next is the <code>inventory</code> directory, with a <code>hosts</code> file inside of it. An <a href=https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html>inventory</a> is a very important construct in Ansible, it&rsquo;s a grouped list of the managed machines and some metadata on how to access them. The r720 and the NUC will be in a <code>proxmox</code> group, and the Raspberry Pi in a group of it&rsquo;s own called <code>pi</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ini data-lang=ini><span style=display:flex><span><span style=color:#ff79c6>[proxmox]</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b>r720 ansible_host</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>192.168.1.100 ansible_user=root</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b>nuc ansible_host</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>192.168.1.200 ansible_user=root</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>[pi]</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b>piprimary ansible_host</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>192.168.1.254 ansible_user=pi</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>; note: all hosts are implicitly in the &#34;all&#34; group as well!</span>
+</span></span></code></pre></div><p>Notice how the different Ansible users need to be specified, and some are even using the root user. It&rsquo;s better practice to have users that can escalate their priviledges when necessary (instead of <code>root</code> directly), so that&rsquo;ll change that in a bit.</p><p>To test that all the configuration is working, the Ansible group <code>all</code> can be pinged:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible all -m ping
+</span></span><span style=display:flex><span>nuc | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>r720 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>piprimary | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span></span></span></code></pre></div><p>Great! All of the hosts are reachable. Time to start writing some playbooks.</p><h2 id=playbooks>Playbooks</h2><p>Playbooks are simply a set of tasks that need to run on hosts. The following playbooks will handle repeated tasks across the machines.</p><h3 id=fixing-proxmox-repositories>Fixing proxmox repositories</h3><p>By default, Proxmox attempts to use a paid <code>pve-enterprise</code> repository for its Debian packages. Luckily these can be switched out to the free <code>pve-no-subscription</code> packages. These are noted as &ldquo;less stable&rdquo; than the enterpise packages, but this is a homelab after all. You can read more about the Proxmox packages <a href=https://pve.proxmox.com/wiki/Package_Repositories>on their wiki</a>.</p><p>In <code>ansible/playbooks/patch-proxmox.yml</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span>- <span style=color:#ff79c6>name</span>: patch-proxmox
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>become</span>: <span style=color:#ff79c6>yes</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>hosts</span>:
+</span></span><span style=display:flex><span>    - proxmox
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>tasks</span>:
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: add pve-no-subscription repository
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>apt_repository</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>repo</span>: deb http://download.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-no-subscription
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>state</span>: present
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>update_cache</span>: <span style=color:#ff79c6>no</span>
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: remove pve-enterprise repository
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>apt_repository</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>repo</span>: deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>state</span>: absent
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>update_cache</span>: <span style=color:#ff79c6>no</span>
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: update pkg cache and dist-upgrade
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>apt</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>update_cache</span>: <span style=color:#ff79c6>yes</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>upgrade</span>: <span style=color:#f1fa8c>&#39;dist&#39;</span>
+</span></span></code></pre></div><p>For the playbook <code>patch-proxmox.yml</code> above, it&rsquo;ll run three tasks on the <code>proxmox</code> group of hosts (the <code>r720</code> and <code>nuc</code>):</p><ol>
+<li>Add the Proxmox <code>pve-no-subscription</code> debian repo based on the host&rsquo;s distribution release.</li><li>Remove the Proxmox <code>pve-enterprise</code> debian repo.</li><li>Run <code>apt update && apt dist-upgrade</code>.</li></ol><p>To run the playbook:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-playbook ./playbooks/patch-proxmox.yml</span></span></code></pre></div><p>💡 Ansible has some great documentations on the <a href=https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html>builtin modules</a> such as the <a href=https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html#ansible-collections-ansible-builtin-apt-module><code>apt</code></a> and <a href=https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html#ansible-collections-ansible-builtin-apt-repository-module><code>apt_repository</code></a> modules used in the tasks above.</p><h3 id=add-a-sudoer>Add a sudoer</h3><p>As mentioned before, the <code>root</code> user is being used on the Proxmox hosts and <code>pi</code> user on the Raspberry Pi. It would be better to have a common known user as an entrypoint for automation, which is what the following playbook will do.</p><p>In <code>ansible/playbooks/setup-sudoers.yml</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span>- <span style=color:#ff79c6>name</span>: add sudoers with ssh keys
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>hosts</span>:
+</span></span><span style=display:flex><span>    - proxmox
+</span></span><span style=display:flex><span>    - pi
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>become</span>: <span style=color:#ff79c6>yes</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>gather_facts</span>: <span style=color:#ff79c6>no</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>vars</span>:
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>users</span>:
+</span></span><span style=display:flex><span>      - <span style=color:#ff79c6>name</span>: rob
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>github</span>: robherley
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>password</span>: $6$himalayan$E.K7G4g7NoIW69HLpmK1QDU1JMN4aaSYPOOGX1SwoSl.uqr64JruCEeDH0nLi9CxJR1/2HGTnTDVKfCC2ubub1
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>tasks</span>:
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: add sudo
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>apt</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>name</span>: sudo
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>state</span>: present
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: add user
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>user</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>name</span>: <span style=color:#f1fa8c>&#34;{{ item.name }}&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>password</span>: <span style=color:#f1fa8c>&#34;{{ item.password }}&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>shell</span>: /bin/bash
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>with_items</span>: <span style=color:#f1fa8c>&#34;{{ users }}&#34;</span>
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: enable passwordless sudo
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>lineinfile</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>dest</span>: /etc/sudoers.d/99-ansible-users
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>state</span>: present
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>mode</span>: <span style=color:#bd93f9>0440</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>create</span>: <span style=color:#ff79c6>yes</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>regexp</span>: <span style=color:#f1fa8c>&#39;^{{ item.name }}&#39;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>line</span>: <span style=color:#f1fa8c>&#39;{{ item.name }} ALL=(ALL) NOPASSWD: ALL&#39;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>validate</span>: <span style=color:#f1fa8c>&#39;visudo -cf %s&#39;</span>
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>with_items</span>: <span style=color:#f1fa8c>&#34;{{ users }}&#34;</span>
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: add keys from github
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>authorized_key</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>key</span>: <span style=color:#f1fa8c>&#34;https://github.com/{{ item.github }}.keys&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>user</span>: <span style=color:#f1fa8c>&#34;{{ item.name }}&#34;</span>
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>with_items</span>: <span style=color:#f1fa8c>&#34;{{ users }}&#34;</span>
+</span></span></code></pre></div><p>For both the <code>pi</code> and <code>proxmox</code> host groups, it&rsquo;ll do the following:</p><ol>
+<li>Make sure <code>sudo</code> is present on the machines.</li><li>Enable passwordless sudo for any user in the <code>sudo</code> group. The <code>lineinfile</code> also has a handy validation function which will validate the changes on a temporary file before overwriting. This way the sudoers file doesn&rsquo;t accidentally get borked.</li><li>For every <code>item</code> in the <code>users</code> var, create a user with <code>item.name</code>. The contents for <code>item.password</code> end up <em>exact</em> in <code>/etc/shadow</code>, so it must be hashed and salted beforehand. To do this, it can be generated with <code>openssl passwd -6 -salt &lt;salt> &lt;password></code>.</li><li>For every <code>item</code> in the <code>users</code> var, add authorized keys from GitHub based on the <code>item.github</code> key. This is similar to previous steps with <code>ssh-import-id</code>, but this is adding the public keys for the newly created user.</li></ol><p>And then run the playbook:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-playbook ./playbooks/setup-sudoers.yml</span></span></code></pre></div><p>Now, all the machines should be accessible at <code>rob@&lt;host></code>, without using a password and with the ability to escalate to root.</p><p>The <code>ansible_user</code> attributes can now be removed from the <code>inventory</code> file:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff><span style=display:flex><span>[proxmox]
+</span></span><span style=display:flex><span><span style=color:#f55>- r720 ansible_host=192.168.1.100 ansible_user=root
+</span></span></span><span style=display:flex><span><span style=color:#f55></span><span style=color:#50fa7b;font-weight:700>+ r720 ansible_host=192.168.1.100
+</span></span></span><span style=display:flex><span><span style=color:#50fa7b;font-weight:700></span><span style=color:#f55>- nuc ansible_host=192.168.1.200 ansible_user=root
+</span></span></span><span style=display:flex><span><span style=color:#f55></span><span style=color:#50fa7b;font-weight:700>+ nuc ansible_host=192.168.1.200
+</span></span></span><span style=display:flex><span><span style=color:#50fa7b;font-weight:700></span>
+</span></span><span style=display:flex><span>[pi]
+</span></span><span style=display:flex><span><span style=color:#f55>- piprimary ansible_host=192.168.1.254 ansible_user=pi
+</span></span></span><span style=display:flex><span><span style=color:#f55></span><span style=color:#50fa7b;font-weight:700>+ piprimary ansible_host=192.168.1.254
+</span></span></span></code></pre></div><p>And set the default remote user in <code>ansible.cfg</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff><span style=display:flex><span>[defaults]
+</span></span><span style=display:flex><span>inventory=inventory
+</span></span><span style=display:flex><span>vault_password_file=.vault_password
+</span></span><span style=display:flex><span>private_key_file=~/.ssh/id_ed25519_gmailkey
+</span></span><span style=display:flex><span><span style=color:#50fa7b;font-weight:700>+ remote_user=rob
+</span></span></span></code></pre></div><p>Then verify that the remotes are still reachable with <code>ansible all -m ping</code>. If this command fails, the configuration is incorrect.</p><h3 id=harden-ssh>Harden SSH</h3><p>Now that there&rsquo;s a separate user as an entrypoint (with SSH keys), <code>root</code> access can be disabled* as well as password access for SSH:</p><p>In <code>ansible/playbooks/harden-ssh.yml</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span>- <span style=color:#ff79c6>name</span>: harden ssh connection
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>become</span>: <span style=color:#ff79c6>yes</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>hosts</span>:
+</span></span><span style=display:flex><span>    - proxmox
+</span></span><span style=display:flex><span>    - pi
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>tasks</span>:
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: assert non-root user
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>assert</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>that</span>:
+</span></span><span style=display:flex><span>          - ansible_user != &#34;root&#34;
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>fail_msg</span>: <span style=color:#f1fa8c>&#34;must run this playbook as non-root to ensure SSH works&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>success_msg</span>: <span style=color:#f1fa8c>&#34;successfully connected as non-root!&#34;</span>
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: disable password login
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>lineinfile</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>dest</span>: /etc/ssh/sshd_config
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>state</span>: present
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>regexp</span>: <span style=color:#f1fa8c>&#39;^PasswordAuthentication&#39;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>line</span>: <span style=color:#f1fa8c>&#39;PasswordAuthentication no&#39;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>validate</span>: <span style=color:#f1fa8c>&#39;sshd -t -f %s&#39;</span>
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>notify</span>:
+</span></span><span style=display:flex><span>        - restart-sshd
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: disable root login
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>when</span>: <span style=color:#f1fa8c>&#34;&#39;proxmox&#39; not in group_names&#34;</span>
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>lineinfile</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>dest</span>: /etc/ssh/sshd_config
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>state</span>: present
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>regexp</span>: <span style=color:#f1fa8c>&#39;^PermitRootLogin&#39;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>line</span>: <span style=color:#f1fa8c>&#39;PermitRootLogin no&#39;</span>
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>validate</span>: <span style=color:#f1fa8c>&#39;sshd -t -f %s&#39;</span>
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>notify</span>:
+</span></span><span style=display:flex><span>        - restart-sshd
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>handlers</span>:
+</span></span><span style=display:flex><span>    - <span style=color:#ff79c6>name</span>: restart-sshd
+</span></span><span style=display:flex><span>      <span style=color:#ff79c6>service</span>:
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>name</span>: sshd
+</span></span><span style=display:flex><span>        <span style=color:#ff79c6>state</span>: restarted
+</span></span></code></pre></div><p>For both the <code>pi</code> and <code>proxmox</code> host groups, it&rsquo;ll do the following:</p><ol>
+<li>A basic assert on the current <code>ansible_user</code> to make sure it isn&rsquo;t using root to connect.</li><li>Disabling password login for ssh, and validating with <code>sshd -t</code>.</li><li>Disabling root login for ssh, and validating with <code>sshd -t</code>. Note there&rsquo;s a special <code>when</code> statement checking if the current host is in the <code>proxmox</code> group. *We want to leave root login enabled for these, since Proxmox requires root SSH for the web console shell access and for live migration.</li></ol><p>💡 These tasks also use a <a href=https://docs.ansible.com/ansible/latest/user_guide/playbooks_handlers.html><code>handler</code></a> to execute an additional action only after the task has <em>changed</em>. In the case above, anytime we the sshd configuration changes, the service is restarted.</p><p>And to run the playbook:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-playbook ./playbooks/harden-ssh.yml</span></span></code></pre></div><p>Now, SSH access via <code>root</code> is locked for non-Proxmox hosts:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ssh root@192.168.1.254
+</span></span><span style=display:flex><span>root@192.168.1.254: Permission denied <span style=color:#ff79c6>(</span>publickey<span style=color:#ff79c6>)</span>.</span></span></code></pre></div><p>But it is accessible via the new user and can escalate when necessary:
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ssh rob@192.168.1.254
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@piprimary$ </span>id
+</span></span><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>uid</span><span style=color:#ff79c6>=</span>1000<span style=color:#ff79c6>(</span>rob<span style=color:#ff79c6>)</span> <span style=color:#8be9fd;font-style:italic>gid</span><span style=color:#ff79c6>=</span>1001<span style=color:#ff79c6>(</span>rob<span style=color:#ff79c6>)</span> <span style=color:#8be9fd;font-style:italic>groups</span><span style=color:#ff79c6>=</span>1001<span style=color:#ff79c6>(</span>rob<span style=color:#ff79c6>)</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@piprimary$ </span>sudo su - <span style=color:#6272a4># escalate with no password required!</span>
+</span></span><span style=display:flex><span>root@piprimary$</span></span></code></pre></div></p><h2 id=next>Next</h2><p>All of the groundwork for homelab automation is now in place, and easily extendable. In the next part, I&rsquo;ll dive deeper into automated Proxmox management and container templating.</p></div></article><div style="margin:2rem 0">
 <a style=float:left href=https://blog.reb.gg/posts/02-homelab-pt2/><i class="fas fa-angle-left"></i> Prev</a>
 <a style=float:right href=https://blog.reb.gg/posts/04-homelab-pt4/>Next <i class="fas fa-angle-right"></i></a>
-</div>
-<div id=footer-post-container>
+</div><div id=footer-post-container>
 <div id=footer-post>
 <div id=nav-footer style=display:none>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</div>
-<div id=share-footer style=display:none>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></div><div id=share-footer style=display:none>
 <ul>
 <li>
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f" aria-label=Facebook>
 <i class="fab fa-facebook fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&text=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Twitter>
 <i class="fab fa-twitter fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&title=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Linkedin>
 <i class="fab fa-linkedin fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&is_video=false&description=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Pinterest>
 <i class="fab fa-pinterest fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f" aria-label=Email>
 <i class="fas fa-envelope fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&title=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=Pocket>
 <i class="fab fa-get-pocket fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&title=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label=reddit>
 <i class="fab fa-reddit fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&name=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20created%20a%20two-node%20Proxmox%20cluster%20along%20with%20redundant%20%28ZFS%29%20and%20shared%20%28NFS%29%20storage.%20In%20this%20part%2c%20I%26rsquo%3bll%20go%20over%20how%20to%20connect%20to%20the%20host%20machines%20with%20Ansible%2c%20harden%20access%2c%20and%20setup%20some%20minor%20user%20management.%20This%26rsquo%3bll%20all%20be%20through%20an%20automatic%2c%20idempotent%20configuration%20process.%0aWhat%20is%20Ansible%3f%20Ansible%20is%20a%20great%20automation%20platform%20from%20Red%20Hat%20%28they%20bought%20AnsibleWorks%29%2c%20and%20it%26rsquo%3bs%20an%20extremely%20popular%20tool%20making%20it%20a%20great%20learning%20exercise%20for%20the%20homelab." aria-label=Tumblr>
 <i class="fab fa-tumblr fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f03-homelab-pt3%2f&t=Homelab%20Part%20III%3a%20Automation%20with%20Ansible%20and%20Hardening%20Access" aria-label="Hacker News">
 <i class="fab fa-hacker-news fa-lg" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-<div id=actions-footer>
-<a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu>
+</li></ul></div><div id=actions-footer>
+<a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu>
 <i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
-<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share>
 <i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
-<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
 <i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a>
-</div>
-</div>
-</div>
-<footer id=footer>
+</div></div></div><footer id=footer>
 <div class=footer-left>
 Copyright &copy; 2022 Rob Herley
-</div>
-<div class=footer-right>
+</div><div class=footer-right>
 <nav>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</nav>
-</div>
-</footer>
-</div>
-</body>
-<link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
 <script src=/lib/jquery/jquery.min.js></script>
 <script src=/js/main.js></script>
 </html>

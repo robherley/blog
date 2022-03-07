@@ -6,8 +6,7 @@
 <link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge">
-<title> Homelab Part V: Proxmox VMs and cloud-init | rob's blog</title>
-<link rel=canonical href=https://blog.reb.gg/posts/05-homelab-pt5/>
+<title> Homelab Part V: Proxmox VMs and cloud-init | rob's blog</title><link rel=canonical href=https://blog.reb.gg/posts/05-homelab-pt5/>
 <meta name=description content="👋 Hey y'all. This blog is my documented journey working with various aspects of technology. I'll try my best to keep things coherent and interesting, and hopefully I can teach a few people along the way.">
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=robots content="all,follow">
@@ -30,46 +29,37 @@ Cloud Images While it&rsquo;s possible to prepare custom base images for cloud-i
 <script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]-->
 <link rel=icon type=image/png href=https://blog.reb.gg/images/favicon.ico>
 <script defer data-domain=blog.reb.gg src=https://a.reb.gg/js/a.js></script>
-</head>
-<body class="max-width mx-auto px3 ltr">
+<script async src=https://unpkg.com/mermaid@latest/dist/mermaid.min.js></script>
+</head><body class="max-width mx-auto px3 ltr">
 <div class="content index py4">
 <div id=header-post>
 <a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
 <a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
-<a id=top-icon-tablet href=# onclick="$('html, body').animate({scrollTop:0},'fast')" style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
 <span id=menu>
 <span id=nav>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</span>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></span>
 <br>
 <span id=actions>
 <ul>
 <li>
 <a class=icon href=https://blog.reb.gg/posts/04-homelab-pt4/ aria-label=Previous>
-<i class="fas fa-chevron-left" aria-hidden=true onmouseover="$('#i-prev').toggle()" onmouseout="$('#i-prev').toggle()"></i>
+<i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=https://blog.reb.gg/posts/06-homelab-pt6/ aria-label=Next>
-<i class="fas fa-chevron-right" aria-hidden=true onmouseover="$('#i-next').toggle()" onmouseout="$('#i-next').toggle()"></i>
+<i class="fas fa-chevron-right" aria-hidden=true onmouseover='$("#i-next").toggle()' onmouseout='$("#i-next").toggle()'></i>
 </a>
-</li>
-<li>
-<a class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
-<i class="fas fa-chevron-up" aria-hidden=true onmouseover="$('#i-top').toggle()" onmouseout="$('#i-top').toggle()"></i>
+</li><li>
+<a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
+<i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=# aria-label=Share>
-<i class="fas fa-share-alt" aria-hidden=true onmouseover="$('#i-share').toggle()" onmouseout="$('#i-share').toggle()" onclick="return $('#share').toggle(),!1"></i>
+<i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i>
 </a>
-</li>
-</ul>
-<span id=i-prev class=info style=display:none>Previous post</span>
+</li></ul><span id=i-prev class=info style=display:none>Previous post</span>
 <span id=i-next class=info style=display:none>Next post</span>
 <span id=i-top class=info style=display:none>Back to top</span>
 <span id=i-share class=info style=display:none>Share post</span>
@@ -81,263 +71,162 @@ Cloud Images While it&rsquo;s possible to prepare custom base images for cloud-i
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f" aria-label=Facebook>
 <i class="fab fa-facebook" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&text=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Twitter>
 <i class="fab fa-twitter" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&title=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Linkedin>
 <i class="fab fa-linkedin" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&is_video=false&description=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Pinterest>
 <i class="fab fa-pinterest" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f" aria-label=Email>
 <i class="fas fa-envelope" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&title=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Pocket>
 <i class="fab fa-get-pocket" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&title=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=reddit>
 <i class="fab fa-reddit" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&name=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20setup%20a%20Proxmox%20dynamic%20inventory%20with%20Ansible%20and%20created%20a%20basic%20LXC%20template%20for%20creating%20containers%20that%20were%20automation%20ready.%0aIn%20this%20part%2c%20I%26rsquo%3bll%20setup%20some%20cloud-init%20configs%20to%20initalize%20VMs%20in%20a%20state%20where%20they%20can%20automatically%20be%20managed%20by%20Ansible.%0aCloud%20Images%20While%20it%26rsquo%3bs%20possible%20to%20prepare%20custom%20base%20images%20for%20cloud-init%2c%20many%20Linux%20distributions%20already%20provide%20ready-to-use%20images%2c%20such%20as%20Ubuntu%2c%20Fedora%2c%20Debian%2c%20etc." aria-label=Tumblr>
 <i class="fab fa-tumblr" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&t=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label="Hacker News">
 <i class="fab fa-hacker-news" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-</span>
-</div>
-<div style=margin-bottom:2rem>
+</li></ul></div></span>
+</div><div style=margin-bottom:2rem>
 <a href=https://blog.reb.gg/><i class="fas fa-angle-left"></i> Back</a>
-</div>
-<article class=post itemscope itemtype=http://schema.org/BlogPosting>
+</div><article class=post itemscope itemtype=http://schema.org/BlogPosting>
 <header>
 <h1 class=posttitle itemprop="name headline">
 Homelab Part V: Proxmox VMs and cloud-init
-</h1>
-<div class=meta>
+</h1><div class=meta>
 <div class=postdate>
 <time datetime="2022-01-13 00:00:00 -0500 -0500" itemprop=datePublished>2022 Jan 13</time>
-</div>
-<div class=article-read-time>
+</div><div class=article-read-time>
 <i class="far fa-clock"></i>
 3 minute read
-</div>
-<div class=article-tag>
+</div><div class=article-tag>
 <i class="fas fa-tag"></i>
 <a class=tag-link href=/tags/proxmox rel=tag>proxmox</a>
 ,
 <a class=tag-link href=/tags/vm rel=tag>vm</a>
 ,
 <a class=tag-link href=/tags/cloud-init rel=tag>cloud-init</a>
-</div>
-</div>
-</header>
-<div id=toc>
+</div></div></header><div id=toc>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#cloud-images>Cloud Images</a></li>
-<li><a href=#template-vm>Template VM</a></li>
-<li><a href=#cloud-config>Cloud config</a></li>
-<li><a href=#next>Next</a></li>
-</ul>
-</nav>
-</div>
-<div class=content itemprop=articleBody>
-<p>In the previous part of this series, I setup a Proxmox dynamic inventory with Ansible and created a basic LXC template for creating containers that were automation ready.</p>
-<p>In this part, I&rsquo;ll setup some <a href=https://cloudinit.readthedocs.io/en/latest/>cloud-init</a> configs to initalize VMs in a state where they can automatically be managed by Ansible.</p>
-<h2 id=cloud-images>Cloud Images</h2>
-<p>While it&rsquo;s possible to prepare custom base images for cloud-init, many Linux distributions already provide ready-to-use images, such as <a href=https://cloud-images.ubuntu.com>Ubuntu</a>, <a href=https://alt.fedoraproject.org/cloud/>Fedora</a>, <a href=https://cloud.debian.org/images/cloud/>Debian</a>, etc. This allows for a (mostly) unified configuration that can work across distros and even some *BSD variants.</p>
-<p>Pull a cloud image to storage:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span><span style=color:#8be9fd;font-style:italic>cd</span> /tmp
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img</code></pre></div>
-<p>Alternatively, the <a href=https://cloudinit.readthedocs.io/en/latest/topics/cli.html#cli-interface><code>cloud-init</code></a> CLI can be used to build custom images.</p>
-<h2 id=template-vm>Template VM</h2>
-<p>Similar to the process for LXC, image templates will be used for VM creation. But unlike containers, it is not necessary to boot into the VM and manually tweak the environment. The first-time setup can all be done with cloud-init. The <a href=https://pve.proxmox.com/wiki/Cloud-Init_Support>Proxmox wiki</a> has some examples, although the documentation is a bit sparse.</p>
-<p>First, create the VM using the <a href=https://pve.proxmox.com/pve-docs/qm.1.html><code>qm</code></a> CLI:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm create <span style=color:#bd93f9>2000</span> <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--name ubuntu-cloudinit-template <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--net0 virtio,bridge<span style=color:#ff79c6>=</span>vmbr0 <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--memory <span style=color:#bd93f9>8192</span> <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--cores <span style=color:#bd93f9>4</span></code></pre></div>
-<p>Import the cloud image downloaded earlier (or use a custom one), attach it to the VM, and resize as necessary:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm importdisk <span style=color:#bd93f9>2000</span> /tmp/focal-server-cloudimg-amd64.img ssd-mirror --format qcow2
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --scsihw virtio-scsi-pci --scsi0 ssd-mirror:vm-2000-disk-0
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>qm resize <span style=color:#bd93f9>2000</span> scsi0 +32G <span style=color:#6272a4># increase it by 32GB</span></code></pre></div>
-<p>Add a CDROM drive for cloud-init, and restrict BIOS to boot from disk only to speed up the boot process:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --ide2 ssd-mirror:cloudinit
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --boot c --bootdisk scsi0</code></pre></div>
-<p>It is recommended to attach a serial console to the VM as well:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --serial0 socket --vga serial0</code></pre></div>
-<p>And also enable the guest agent which will be installed later by cloud-init:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>root@r720 qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --agent <span style=color:#bd93f9>1</span></code></pre></div>
-<h2 id=cloud-config>Cloud config</h2>
-<p>With the VM ready, it&rsquo;s time to tweak the cloud config. Proxmox autogenerates configs for the <a href=https://cloudinit.readthedocs.io/en/latest/topics/examples.html><code>user</code></a>, <a href=https://cloudinit.readthedocs.io/en/latest/topics/network-config.html><code>network</code></a>, and <a href=https://cloudinit.readthedocs.io/en/latest/topics/instancedata.html><code>meta</code></a> types, they can be inspected like so:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm cloudinit dump <span style=color:#bd93f9>2000</span> user <span style=color:#6272a4># or `network` or `meta`</span>
-<span style=color:#6272a4>#cloud-config</span>
-hostname: ubuntu-cloudinit-template
-manage_etc_hosts: <span style=color:#8be9fd;font-style:italic>true</span>
-chpasswd:
-  expire: False
-users:
-  - default
-package_upgrade: true</code></pre></div>
-<p>In my opinion, the way Proxmox template cloud config is a bit backwards. Instead of autogenerating <a href=https://cloudinit.readthedocs.io/en/latest/topics/vendordata.html><code>vendor</code></a> data, Proxmox uses the <code>user</code> data. This is slightly annoying because if a custom <code>user</code> configuration YAML is attached, it is impossible to have the config autoassign the hostname based on the VM name. Unfortunately, to change the default configuration template it is relatively limited. For any complicated cloud config, I&rsquo;ll abuse <code>vendor</code> instead. But, it is worth noting that <code>user</code> config takes precedence over <code>vendor</code>, so any values defined in <code>user</code> will not be overwritten.</p>
-<p>💡 Custom cloud configs files are stored under the <code>snippets</code> type.</p>
-<p>In <code>/rusty-z2/pve/snippets/ubuntu-qemu.yaml</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#6272a4>#cloud-config</span>
-<span style=color:#ff79c6>user</span>: rob
-<span style=color:#ff79c6>password</span>: $6$himalayan$E.K7G4g7NoIW69HLpmK1QDU1JMN4aaSYPOOGX1SwoSl.uqr64JruCEeDH0nLi9CxJR1/2HGTnTDVKfCC2ubub1
-<span style=color:#ff79c6>ssh_import_id</span>:
-  - gh:robherley
-<span style=color:#ff79c6>packages</span>:
-  - qemu-guest-agent
-</code></pre></div><p>This will be doing mostly the same prep work as the container process. It will:</p>
-<ul>
-<li>Overwrite the default user&rsquo;s name as <code>rob</code>. This user will also implicitly get an entry in <code>/etc/sudoers.d/90-cloud-init-users</code> for passwordless sudo.</li>
-<li>Run <code>ssh-import-id</code> to pull public keys from GitHub.</li>
-<li>Add <code>qemu-guest-agent</code>, a helper daemon used to exchange information between the host and guest.</li>
-</ul>
-<p>Add the <code>vendor</code> cloud config to the template VM:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --cicustom <span style=color:#f1fa8c>&#34;vendor=rusty-dir:snippets/ubuntu-qemu.yaml&#34;</span></code></pre></div>
-<p>The network config also needs a slight tweak to use DHCP:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --ipconfig0 <span style=color:#8be9fd;font-style:italic>ip</span><span style=color:#ff79c6>=</span>dhcp</code></pre></div>
-<p>And finally, set the VM to be a template:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm template <span style=color:#bd93f9>2000</span></code></pre></div>
-<p>To test, just clone some VMs from the template:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm clone <span style=color:#bd93f9>2000</span> <span style=color:#bd93f9>101</span> --full --name thing1
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>qm clone <span style=color:#bd93f9>2000</span> <span style=color:#bd93f9>102</span> --full --name thing2
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>qm start <span style=color:#bd93f9>101</span>
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>qm start <span style=color:#bd93f9>102</span></code></pre></div>
-<p>These take a bit longer than the containers to spin up, and they need to run through the cloud-init process after boot. After waiting a while, they should be reachable:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>ansible proxmox_all_running -m ping
-thing2 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span>
-thing1 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span></code></pre></div>
-<p><strong>Note:</strong> For the qemu-guest-agent to be detected by Proxmox, the VM needs to be stopped by Proxmox (or <code>qm</code> CLI) and restarted.</p>
-<h2 id=next>Next</h2>
-<p>Automation-ready virtual machine and containers can now be programmatically created. Using the CLI can be a bit of a pain and the web console is fine for one-offs, but this process can be improved with a wonderful tool from HashiCorp called Terraform. In the next part of the series, Terraform will be used as IaC to provision the guests from Proxmox.</p>
-</div>
-</article>
-<div style="margin:2rem 0">
+<li><a href=#cloud-images>Cloud Images</a></li><li><a href=#template-vm>Template VM</a></li><li><a href=#cloud-config>Cloud config</a></li><li><a href=#next>Next</a></li></ul></nav></div><div class=content itemprop=articleBody>
+<p>In the previous part of this series, I setup a Proxmox dynamic inventory with Ansible and created a basic LXC template for creating containers that were automation ready.</p><p>In this part, I&rsquo;ll setup some <a href=https://cloudinit.readthedocs.io/en/latest/>cloud-init</a> configs to initalize VMs in a state where they can automatically be managed by Ansible.</p><h2 id=cloud-images>Cloud Images</h2><p>While it&rsquo;s possible to prepare custom base images for cloud-init, many Linux distributions already provide ready-to-use images, such as <a href=https://cloud-images.ubuntu.com>Ubuntu</a>, <a href=https://alt.fedoraproject.org/cloud/>Fedora</a>, <a href=https://cloud.debian.org/images/cloud/>Debian</a>, etc. This allows for a (mostly) unified configuration that can work across distros and even some *BSD variants.</p><p>Pull a cloud image to storage:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span><span style=color:#8be9fd;font-style:italic>cd</span> /tmp
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img</span></span></code></pre></div><p>Alternatively, the <a href=https://cloudinit.readthedocs.io/en/latest/topics/cli.html#cli-interface><code>cloud-init</code></a> CLI can be used to build custom images.</p><h2 id=template-vm>Template VM</h2><p>Similar to the process for LXC, image templates will be used for VM creation. But unlike containers, it is not necessary to boot into the VM and manually tweak the environment. The first-time setup can all be done with cloud-init. The <a href=https://pve.proxmox.com/wiki/Cloud-Init_Support>Proxmox wiki</a> has some examples, although the documentation is a bit sparse.</p><p>First, create the VM using the <a href=https://pve.proxmox.com/pve-docs/qm.1.html><code>qm</code></a> CLI:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm create <span style=color:#bd93f9>2000</span> <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--name ubuntu-cloudinit-template <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--net0 virtio,bridge<span style=color:#ff79c6>=</span>vmbr0 <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--memory <span style=color:#bd93f9>8192</span> <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--cores <span style=color:#bd93f9>4</span></span></span></code></pre></div><p>Import the cloud image downloaded earlier (or use a custom one), attach it to the VM, and resize as necessary:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm importdisk <span style=color:#bd93f9>2000</span> /tmp/focal-server-cloudimg-amd64.img ssd-mirror --format qcow2
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --scsihw virtio-scsi-pci --scsi0 ssd-mirror:vm-2000-disk-0
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm resize <span style=color:#bd93f9>2000</span> scsi0 +32G <span style=color:#6272a4># increase it by 32GB</span></span></span></code></pre></div><p>Add a CDROM drive for cloud-init, and restrict BIOS to boot from disk only to speed up the boot process:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --ide2 ssd-mirror:cloudinit
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --boot c --bootdisk scsi0</span></span></code></pre></div><p>It is recommended to attach a serial console to the VM as well:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --serial0 socket --vga serial0</span></span></code></pre></div><p>And also enable the guest agent which will be installed later by cloud-init:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>root@r720 qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --agent <span style=color:#bd93f9>1</span></span></span></code></pre></div><h2 id=cloud-config>Cloud config</h2><p>With the VM ready, it&rsquo;s time to tweak the cloud config. Proxmox autogenerates configs for the <a href=https://cloudinit.readthedocs.io/en/latest/topics/examples.html><code>user</code></a>, <a href=https://cloudinit.readthedocs.io/en/latest/topics/network-config.html><code>network</code></a>, and <a href=https://cloudinit.readthedocs.io/en/latest/topics/instancedata.html><code>meta</code></a> types, they can be inspected like so:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm cloudinit dump <span style=color:#bd93f9>2000</span> user <span style=color:#6272a4># or `network` or `meta`</span>
+</span></span><span style=display:flex><span><span style=color:#6272a4>#cloud-config</span>
+</span></span><span style=display:flex><span>hostname: ubuntu-cloudinit-template
+</span></span><span style=display:flex><span>manage_etc_hosts: <span style=color:#8be9fd;font-style:italic>true</span>
+</span></span><span style=display:flex><span>chpasswd:
+</span></span><span style=display:flex><span>  expire: False
+</span></span><span style=display:flex><span>users:
+</span></span><span style=display:flex><span>  - default
+</span></span><span style=display:flex><span>package_upgrade: true</span></span></code></pre></div><p>In my opinion, the way Proxmox template cloud config is a bit backwards. Instead of autogenerating <a href=https://cloudinit.readthedocs.io/en/latest/topics/vendordata.html><code>vendor</code></a> data, Proxmox uses the <code>user</code> data. This is slightly annoying because if a custom <code>user</code> configuration YAML is attached, it is impossible to have the config autoassign the hostname based on the VM name. Unfortunately, to change the default configuration template it is relatively limited. For any complicated cloud config, I&rsquo;ll abuse <code>vendor</code> instead. But, it is worth noting that <code>user</code> config takes precedence over <code>vendor</code>, so any values defined in <code>user</code> will not be overwritten.</p><p>💡 Custom cloud configs files are stored under the <code>snippets</code> type.</p><p>In <code>/rusty-z2/pve/snippets/ubuntu-qemu.yaml</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#6272a4>#cloud-config</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>user</span>: rob
+</span></span><span style=display:flex><span><span style=color:#ff79c6>password</span>: $6$himalayan$E.K7G4g7NoIW69HLpmK1QDU1JMN4aaSYPOOGX1SwoSl.uqr64JruCEeDH0nLi9CxJR1/2HGTnTDVKfCC2ubub1
+</span></span><span style=display:flex><span><span style=color:#ff79c6>ssh_import_id</span>:
+</span></span><span style=display:flex><span>  - gh:robherley
+</span></span><span style=display:flex><span><span style=color:#ff79c6>packages</span>:
+</span></span><span style=display:flex><span>  - qemu-guest-agent
+</span></span></code></pre></div><p>This will be doing mostly the same prep work as the container process. It will:</p><ul>
+<li>Overwrite the default user&rsquo;s name as <code>rob</code>. This user will also implicitly get an entry in <code>/etc/sudoers.d/90-cloud-init-users</code> for passwordless sudo.</li><li>Run <code>ssh-import-id</code> to pull public keys from GitHub.</li><li>Add <code>qemu-guest-agent</code>, a helper daemon used to exchange information between the host and guest.</li></ul><p>Add the <code>vendor</code> cloud config to the template VM:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --cicustom <span style=color:#f1fa8c>&#34;vendor=rusty-dir:snippets/ubuntu-qemu.yaml&#34;</span></span></span></code></pre></div><p>The network config also needs a slight tweak to use DHCP:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>2000</span> --ipconfig0 <span style=color:#8be9fd;font-style:italic>ip</span><span style=color:#ff79c6>=</span>dhcp</span></span></code></pre></div><p>And finally, set the VM to be a template:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm template <span style=color:#bd93f9>2000</span></span></span></code></pre></div><p>To test, just clone some VMs from the template:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm clone <span style=color:#bd93f9>2000</span> <span style=color:#bd93f9>101</span> --full --name thing1
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm clone <span style=color:#bd93f9>2000</span> <span style=color:#bd93f9>102</span> --full --name thing2
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm start <span style=color:#bd93f9>101</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>qm start <span style=color:#bd93f9>102</span></span></span></code></pre></div><p>These take a bit longer than the containers to spin up, and they need to run through the cloud-init process after boot. After waiting a while, they should be reachable:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>ansible proxmox_all_running -m ping
+</span></span><span style=display:flex><span>thing2 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>thing1 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span></span></span></code></pre></div><p><strong>Note:</strong> For the qemu-guest-agent to be detected by Proxmox, the VM needs to be stopped by Proxmox (or <code>qm</code> CLI) and restarted.</p><h2 id=next>Next</h2><p>Automation-ready virtual machine and containers can now be programmatically created. Using the CLI can be a bit of a pain and the web console is fine for one-offs, but this process can be improved with a wonderful tool from HashiCorp called Terraform. In the next part of the series, Terraform will be used as IaC to provision the guests from Proxmox.</p></div></article><div style="margin:2rem 0">
 <a style=float:left href=https://blog.reb.gg/posts/04-homelab-pt4/><i class="fas fa-angle-left"></i> Prev</a>
 <a style=float:right href=https://blog.reb.gg/posts/06-homelab-pt6/>Next <i class="fas fa-angle-right"></i></a>
-</div>
-<div id=footer-post-container>
+</div><div id=footer-post-container>
 <div id=footer-post>
 <div id=nav-footer style=display:none>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</div>
-<div id=share-footer style=display:none>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></div><div id=share-footer style=display:none>
 <ul>
 <li>
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f" aria-label=Facebook>
 <i class="fab fa-facebook fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&text=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Twitter>
 <i class="fab fa-twitter fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&title=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Linkedin>
 <i class="fab fa-linkedin fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&is_video=false&description=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Pinterest>
 <i class="fab fa-pinterest fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f" aria-label=Email>
 <i class="fas fa-envelope fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&title=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=Pocket>
 <i class="fab fa-get-pocket fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&title=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label=reddit>
 <i class="fab fa-reddit fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&name=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20setup%20a%20Proxmox%20dynamic%20inventory%20with%20Ansible%20and%20created%20a%20basic%20LXC%20template%20for%20creating%20containers%20that%20were%20automation%20ready.%0aIn%20this%20part%2c%20I%26rsquo%3bll%20setup%20some%20cloud-init%20configs%20to%20initalize%20VMs%20in%20a%20state%20where%20they%20can%20automatically%20be%20managed%20by%20Ansible.%0aCloud%20Images%20While%20it%26rsquo%3bs%20possible%20to%20prepare%20custom%20base%20images%20for%20cloud-init%2c%20many%20Linux%20distributions%20already%20provide%20ready-to-use%20images%2c%20such%20as%20Ubuntu%2c%20Fedora%2c%20Debian%2c%20etc." aria-label=Tumblr>
 <i class="fab fa-tumblr fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f05-homelab-pt5%2f&t=Homelab%20Part%20V%3a%20Proxmox%20VMs%20and%20cloud-init" aria-label="Hacker News">
 <i class="fab fa-hacker-news fa-lg" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-<div id=actions-footer>
-<a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu>
+</li></ul></div><div id=actions-footer>
+<a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu>
 <i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
-<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share>
 <i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
-<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
 <i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a>
-</div>
-</div>
-</div>
-<footer id=footer>
+</div></div></div><footer id=footer>
 <div class=footer-left>
 Copyright &copy; 2022 Rob Herley
-</div>
-<div class=footer-right>
+</div><div class=footer-right>
 <nav>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</nav>
-</div>
-</footer>
-</div>
-</body>
-<link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
 <script src=/lib/jquery/jquery.min.js></script>
 <script src=/js/main.js></script>
 </html>

@@ -1,0 +1,300 @@
+<!doctype html><html lang=en-us>
+<head>
+<link rel=preload href=/lib/font-awesome/webfonts/fa-brands-400.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<link rel=preload href=/lib/font-awesome/webfonts/fa-regular-400.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<link rel=preload href=/lib/font-awesome/webfonts/fa-solid-900.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<title> Rewriting tiny.coffee to &lt; 100 lines of Go | rob's blog</title><link rel=canonical href=https://blog.reb.gg/posts/07-go-tiny-coffee/>
+<meta name=description content="👋 Hey y'all. This blog is my documented journey working with various aspects of technology. I'll try my best to keep things coherent and interesting, and hopefully I can teach a few people along the way.">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="all,follow">
+<meta name=googlebot content="index,follow,snippet,archive">
+<meta property="og:title" content="Rewriting tiny.coffee to < 100 lines of Go">
+<meta property="og:description" content="History of tiny.coffee There are people in this world that suffer from an incredible problem &ndash; the unresistable urge to buy vanity domains. I am one of those people, and one of favorites (excluding my brief ownership of ibm.lol)1 is tiny.coffee.
+At first I didn&rsquo;t know what I wanted to do with it, but then I was inspired by parrot.live! When running curl parrot.live, you will be greeted with a ASCII party parrot in your terminal:">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://blog.reb.gg/posts/07-go-tiny-coffee/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2022-03-06T00:00:00-05:00">
+<meta property="article:modified_time" content="2022-03-06T00:00:00-05:00">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Rewriting tiny.coffee to < 100 lines of Go">
+<meta name=twitter:description content="History of tiny.coffee There are people in this world that suffer from an incredible problem &ndash; the unresistable urge to buy vanity domains. I am one of those people, and one of favorites (excluding my brief ownership of ibm.lol)1 is tiny.coffee.
+At first I didn&rsquo;t know what I wanted to do with it, but then I was inspired by parrot.live! When running curl parrot.live, you will be greeted with a ASCII party parrot in your terminal:">
+<link rel=stylesheet href=https://blog.reb.gg/css/styles.a20e9ff7e4966e5e04f7c5bb633c3e427d0e10d8d676b3c4b81da08966c34bd718f4bf0b40f3a4a8cb8495678b39d8007406db2549bc420e2c2e8086708b958c.css integrity="sha512-og6f9+SWbl4E98W7Yzw+Qn0OENjWdrPEuB2giWbDS9cY9L8LQPOkqMuElWeLOdgAdAbbJUm8Qg4sLoCGcIuVjA==">
+<link rel=stylesheet href=https://blog.reb.gg/css/custom.css><!--[if lt IE 9]><script src=https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js></script>
+<script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]-->
+<link rel=icon type=image/png href=https://blog.reb.gg/images/favicon.ico>
+<script defer data-domain=blog.reb.gg src=https://a.reb.gg/js/a.js></script>
+<script async src=https://unpkg.com/mermaid@latest/dist/mermaid.min.js></script>
+</head><body class="max-width mx-auto px3 ltr">
+<div class="content index py4">
+<div id=header-post>
+<a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<span id=menu>
+<span id=nav>
+<ul>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></span>
+<br>
+<span id=actions>
+<ul>
+<li>
+<a class=icon href=https://blog.reb.gg/posts/06-homelab-pt6/ aria-label=Previous>
+<i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i>
+</a>
+</li><li>
+<a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
+<i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i>
+</a>
+</li><li>
+<a class=icon href=# aria-label=Share>
+<i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i>
+</a>
+</li></ul><span id=i-prev class=info style=display:none>Previous post</span>
+<span id=i-next class=info style=display:none>Next post</span>
+<span id=i-top class=info style=display:none>Back to top</span>
+<span id=i-share class=info style=display:none>Share post</span>
+</span>
+<br>
+<div id=share style=display:none>
+<ul>
+<li>
+<a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f" aria-label=Facebook>
+<i class="fab fa-facebook" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&text=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Twitter>
+<i class="fab fa-twitter" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&title=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Linkedin>
+<i class="fab fa-linkedin" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&is_video=false&description=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Pinterest>
+<i class="fab fa-pinterest" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="mailto:?subject=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f" aria-label=Email>
+<i class="fas fa-envelope" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&title=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Pocket>
+<i class="fab fa-get-pocket" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&title=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=reddit>
+<i class="fab fa-reddit" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&name=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go&description=History%20of%20tiny.coffee%20There%20are%20people%20in%20this%20world%20that%20suffer%20from%20an%20incredible%20problem%20%26ndash%3b%20the%20unresistable%20urge%20to%20buy%20vanity%20domains.%20I%20am%20one%20of%20those%20people%2c%20and%20one%20of%20favorites%20%28excluding%20my%20brief%20ownership%20of%20ibm.lol%291%20is%20tiny.coffee.%0aAt%20first%20I%20didn%26rsquo%3bt%20know%20what%20I%20wanted%20to%20do%20with%20it%2c%20but%20then%20I%20was%20inspired%20by%20parrot.live%21%20When%20running%20curl%20parrot.live%2c%20you%20will%20be%20greeted%20with%20a%20ASCII%20party%20parrot%20in%20your%20terminal%3a" aria-label=Tumblr>
+<i class="fab fa-tumblr" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&t=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label="Hacker News">
+<i class="fab fa-hacker-news" aria-hidden=true></i>
+</a>
+</li></ul></div></span>
+</div><div style=margin-bottom:2rem>
+<a href=https://blog.reb.gg/><i class="fas fa-angle-left"></i> Back</a>
+</div><article class=post itemscope itemtype=http://schema.org/BlogPosting>
+<header>
+<h1 class=posttitle itemprop="name headline">
+Rewriting tiny.coffee to &lt; 100 lines of Go
+</h1><div class=meta>
+<div class=postdate>
+<time datetime="2022-03-06 00:00:00 -0500 -0500" itemprop=datePublished>2022 Mar 6</time>
+</div><div class=article-read-time>
+<i class="far fa-clock"></i>
+6 minute read
+</div><div class=article-tag>
+<i class="fas fa-tag"></i>
+<a class=tag-link href=/tags/golang rel=tag>golang</a>
+,
+<a class=tag-link href=/tags/http rel=tag>http</a>
+,
+<a class=tag-link href=/tags/curl rel=tag>curl</a>
+,
+<a class=tag-link href=/tags/container rel=tag>container</a>
+</div></div></header><div id=toc>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#history-of-tinycoffee>History of tiny.coffee</a></li><li><a href=#aging-like-milk>Aging like milk</a></li><li><a href=#the-rewrite>The rewrite</a>
+<ul>
+<li><a href=#embedding-static-files>Embedding static files</a></li><li><a href=#serving-the-coffee>Serving the coffee</a></li><li><a href=#fresh-coat-of-paint>Fresh coat of paint</a></li></ul></li><li><a href=#bonus-containerization-and-cicd>Bonus: Containerization and CI/CD</a></li></ul></nav></div><div class=content itemprop=articleBody>
+<h2 id=history-of-tinycoffee>History of tiny.coffee</h2><p>There are people in this world that suffer from an incredible problem &ndash; the <strong>unresistable urge</strong> to buy vanity domains. I am one of those people, and one of favorites (excluding my brief ownership of <code>ibm.lol</code>)<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> is <a href=https://tiny.coffee>tiny.coffee</a>.</p><p>At first I didn&rsquo;t know <em>what</em> I wanted to do with it, but then I was inspired by <a href=https://github.com/hugomd/parrot.live>parrot.live</a>! When running <code>curl parrot.live</code>, you will be greeted with a ASCII party parrot in your terminal:</p><p>
+<figure>
+<img src=/content/tiny.coffee/parrot.png alt="parrot live screenshot">
+<figcaption style=text-align:center>Example of `curl parrot.live`</figcaption></figure></p><p>I decided to <a href=https://github.com/robherley/tiny.coffee/commit/fe46c464d1ab3ae7435b36e6cdca0f8b3d61717c>fork it</a> into <code>tiny.coffee</code>. It just required a few HTML and ASCII changes, the JavaScript code was practically identical and didn&rsquo;t need major tweaks. After adding a Dockerfile, it was deployed!</p><p>Although, my ASCII art left a lot to be desired:</p><p>
+<figure>
+<img src=/content/tiny.coffee/coffee-old.png alt="old tiny coffee screenshot">
+<figcaption style=text-align:center>Example of v1 `curl tiny.coffee`</figcaption></figure></p><p>If a user made a request via a web browser (or anything else without <code>curl</code> in the user agent), it would respond with a simple HTML webpage with a tiny party parrot holding coffee.</p><p>
+<figure>
+<img src=/content/tiny.coffee/coffee-old-web.png alt="old tiny coffee web">
+<figcaption style=text-align:center>Old tiny.coffee web page</figcaption></figure></p><h2 id=aging-like-milk>Aging like milk</h2><p>The first version of <code>tiny.coffee</code> was deployed ~4 years ago and a bit has changed since then. It&rsquo;s been moved from more machines/clouds than I can count. Most recently it was just a static site hosted on Vercel without the special curl user agent code path. This was meant to be temporary, but changing apartments/jobs and countless homelab rebuilds left it in limbo.</p><p>So, with my now <a href=/posts/01-homelab-pt1/>&ldquo;stable&rdquo; homelab</a>, I decide to spin it up again. I was quickly greeted by a familar site for JS devs:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>npm WARN old lockfile
+</span></span><span style=display:flex><span>npm WARN old lockfile The package-lock.json file was created with an old version of npm,
+</span></span><span style=display:flex><span>npm WARN old lockfile so supplemental metadata must be fetched from the registry.
+</span></span><span style=display:flex><span>npm WARN old lockfile
+</span></span><span style=display:flex><span>npm WARN old lockfile This is a one-time fix-up, please be patient...
+</span></span><span style=display:flex><span>npm WARN old lockfile
+</span></span><span style=display:flex><span>npm WARN deprecated fsevents@1.2.4: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
+</span></span><span style=display:flex><span>npm WARN deprecated set-value@2.0.0: Critical bug fixed in v3.0.1, please upgrade to the latest version.
+</span></span><span style=display:flex><span>npm WARN deprecated ini@1.3.5: Please update to ini &gt;=1.3.6 to avoid a prototype pollution issue
+</span></span><span style=display:flex><span>npm WARN deprecated set-value@0.4.3: Critical bug fixed in v3.0.1, please upgrade to the latest version.
+</span></span><span style=display:flex><span>npm WARN deprecated urix@0.1.0: Please see https://github.com/lydell/urix#deprecated
+</span></span><span style=display:flex><span>npm WARN deprecated resolve-url@0.2.1: https://github.com/lydell/resolve-url#deprecated
+</span></span><span style=display:flex><span>npm WARN deprecated source-map-url@0.4.0: See https://github.com/lydell/source-map-url#deprecated
+</span></span><span style=display:flex><span>npm WARN deprecated chokidar@2.0.4: Chokidar 2 does not receive security updates since 2019. Upgrade to chokidar 3 with 15x fewer dependencies
+</span></span><span style=display:flex><span>npm WARN deprecated debug@3.2.6: Debug versions &gt;=3.2.0 &lt;3.2.7 || &gt;=4 &lt;4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)
+</span></span><span style=display:flex><span>npm WARN deprecated mixin-deep@1.3.1: Critical bug fixed in v2.0.1, please upgrade to the latest version.
+</span></span><span style=display:flex><span>npm WARN deprecated source-map-resolve@0.5.2: See https://github.com/lydell/source-map-resolve#deprecated
+</span></span></code></pre></div><p>The deprecation warnings have deprecation warnings. And even better:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>added 229 packages, and audited 230 packages in 8s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>19 vulnerabilities (1 low, 8 moderate, 9 high, 1 critical)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>To address issues that do not require attention, run:
+</span></span><span style=display:flex><span>  npm audit fix
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>To address all issues (including breaking changes), run:
+</span></span><span style=display:flex><span>  npm audit fix --force
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Run `npm audit` for details.
+</span></span></code></pre></div><p>This is why <a href=https://snyk.io/>Snyk</a> and <a href=https://github.com/dependabot>Dependabot</a> are so popular in the JS community. Even an app as simple as this with only two immediate dependencies links to over 200 packages with 19 vulnerabilites (with a critical and multiple high)!</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#6272a4># listing npm dependencies</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@mbp$ </span>cat package.json | jq <span style=color:#f1fa8c>&#39;.dependencies&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>  <span style=color:#f1fa8c>&#34;colors&#34;</span>: <span style=color:#f1fa8c>&#34;1.1.2&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f1fa8c>&#34;mz&#34;</span>: <span style=color:#f1fa8c>&#34;2.7.0&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4># size of npm dependencies</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@mbp$ </span>du -h node_modules
+</span></span><span style=display:flex><span>7.1M	node_modules
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#6272a4># how many files of npm dependencies</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@mbp$ </span>find node_modules -type f | wc -l
+</span></span><span style=display:flex><span>    <span style=color:#bd93f9>1271</span></span></span></code></pre></div><p>And yes, many may argue both of these dependencies can be removed:</p><ul>
+<li><code>colors</code> can be replaced by <a href=https://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html>ANSI escape sequences</a>. Still has <a href=https://www.npmjs.com/package/colors>24.8M weekly downloads</a> on NPM at the time of writing this.</li><li><code>mz</code> isn&rsquo;t nessary anymore in modern Node versions since we have <a href=https://nodejs.org/api/fs.html#promises-api><code>fs/promises</code></a> and <a href=https://nodejs.org/api/util.html#utilpromisifyoriginal><code>util.promisify</code></a>. Still has <a href=https://www.npmjs.com/package/mz>3.8M weekly downloads</a> on NPM at the time of writing this.</li></ul><p>Instead of patching these dependencies, I figured it&rsquo;d be a fun afternoon project to rewrite this in Go!</p><h2 id=the-rewrite>The rewrite</h2><p>To me, Go was a perfect replacement. It has a great HTTP server in the <a href=https://pkg.go.dev/net/http><code>net/http</code></a> standard library and the static content (HTML & ASCII art) can actually be embeded in the binary directly using <a href=https://pkg.go.dev/embed><code>embed</code></a> in Go >= 1.16. Everything required is already in the standard library, which means no dependencies!</p><h3 id=embedding-static-files>Embedding static files</h3><p>This can&rsquo;t be easier. To &ldquo;embed&rdquo; a static file into the Go binary, it just needs a brief <code>//go:embed</code> comment above the variable, and it will contain the specified data at runtime:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#8be9fd;font-style:italic>var</span> (
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>//go:embed static/index.html
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  indexHTML []<span style=color:#8be9fd>byte</span> <span style=color:#6272a4>// binary content of the index.html
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>//go:embed frames/*.txt
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>  frameFS embed.FS <span style=color:#6272a4>// read-only filesystem containing ASCII coffee frames
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>
+</span></span><span style=display:flex><span>  <span style=color:#6272a4>//...
+</span></span></span><span style=display:flex><span><span style=color:#6272a4></span>)
+</span></span></code></pre></div><p>Now, the compiled binary can be moved around without depending on a specific folder structure/path.</p><h3 id=serving-the-coffee>Serving the coffee</h3><p>I&rsquo;ll be using the default router in the <code>net/http</code> package and adding a single route to handle all requests. It will follow this pattern:</p><div class=mermaid>
+%%{init: {'theme': 'dark' } }%%
+stateDiagram-v2
+state ua &lt;&lt;choice>>
+new_req: new request
+stream: streaming
+frame: send frame
+html: render html
+timeout: 2min timeout
+user_close: user closed conn
+new_req --> ua
+ua --> stream: user-agent = curl
+ua --> html: user-agent = *
+stream --> frame: every 100ms
+frame --> stream
+stream --> timeout
+stream --> user_close
+timeout --> [*]
+user_close --> [*]
+</div><p>Nothing too complicated going on here, this can be contained to a <code>for...select</code> block with a couple channels. To account for both the user closing the connection and the two minute timeout, the default <a href=https://pkg.go.dev/net/http#Request.Context><code>Request.Context</code></a> can be wrapped in the <a href=https://pkg.go.dev/context#WithTimeout><code>context.WithTimeout</code></a> and those cases can be handled together in a single channel. Otherwise, a <a href=https://pkg.go.dev/time#Ticker><code>time.Ticker</code></a> will be used to send ANSI codes and a ASCII coffee frame every 100ms.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span>idx <span style=color:#ff79c6>:=</span> <span style=color:#bd93f9>0</span>
+</span></span><span style=display:flex><span>ticker <span style=color:#ff79c6>:=</span> time.<span style=color:#50fa7b>NewTicker</span>(time.Millisecond <span style=color:#ff79c6>*</span> <span style=color:#bd93f9>100</span>)
+</span></span><span style=display:flex><span>reqCancelCtx, cancel <span style=color:#ff79c6>:=</span> context.<span style=color:#50fa7b>WithTimeout</span>(r.<span style=color:#50fa7b>Context</span>(), time.Minute <span style=color:#ff79c6>*</span> <span style=color:#bd93f9>2</span>)
+</span></span><span style=display:flex><span><span style=color:#ff79c6>defer</span> <span style=color:#50fa7b>cancel</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>for</span> {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>select</span> {
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>case</span> <span style=color:#ff79c6>&lt;-</span>reqCancelCtx.<span style=color:#50fa7b>Done</span>():
+</span></span><span style=display:flex><span>    w.<span style=color:#50fa7b>Write</span>([]<span style=color:#8be9fd;font-style:italic>byte</span>(<span style=color:#f1fa8c>&#34;no more coffee :(\n&#34;</span>))
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>return</span>
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>case</span> <span style=color:#ff79c6>&lt;-</span>ticker.C:
+</span></span><span style=display:flex><span>    w.<span style=color:#50fa7b>Write</span>(ansiClear)
+</span></span><span style=display:flex><span>    w.<span style=color:#50fa7b>Write</span>(ansiColors[idx<span style=color:#ff79c6>%</span><span style=color:#8be9fd;font-style:italic>len</span>(ansiColors)])
+</span></span><span style=display:flex><span>    w.<span style=color:#50fa7b>Write</span>(frames[idx<span style=color:#ff79c6>%</span><span style=color:#8be9fd;font-style:italic>len</span>(frames)])
+</span></span><span style=display:flex><span>    w.<span style=color:#50fa7b>Write</span>(ansiReset)
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>if</span> f, ok <span style=color:#ff79c6>:=</span> w.(http.Flusher); ok {
+</span></span><span style=display:flex><span>      f.<span style=color:#50fa7b>Flush</span>()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    idx = idx <span style=color:#ff79c6>+</span> <span style=color:#bd93f9>1</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Note the <code>f.Flush()</code>, the default <code>http.Transport</code> in Go has a <a href="https://cs.opensource.google/go/go/+/refs/tags/go1.17.8:src/net/http/transport.go;l=262-265">default write buffer size of 4KB</a>, so the response writer will need to be flushed in order to get the coffee pouring in a timely matter.</p><h3 id=fresh-coat-of-paint>Fresh coat of paint</h3><p>My original ASCII art was horrible and the coffee mug was quite large for a <em>tiny coffee</em>, so I found some nice ASCII from <a href=http://www.ascii-art.de/ascii/c/coffee.txt>ascii-art.de</a> and slightly modified the &ldquo;Double Espresso&rdquo; from an unknown author.</p><p>
+<figure>
+<img src=/content/tiny.coffee/coffee-new.png alt="new tiny coffee">
+<figcaption style=text-align:center>New output of `curl tiny.coffee`</figcaption></figure></p><p>The HTML also needed some sprucing up. I wanted to publicize the main attraction, so slapping <code>curl tiny.coffee</code> in the center of the page with a link to the source code under it seemed appropriate. Finally, making the original coffee party parrot bounce around like a mid-2000s DVD screensaver was the icing on the cake.</p><p>
+<figure>
+<img src=/content/tiny.coffee/coffee-new-web.png alt="new tiny coffee web">
+<figcaption style=text-align:center>New tiny.coffee web page</figcaption></figure></p><h2 id=bonus-containerization-and-cicd>Bonus: Containerization and CI/CD</h2><p>Static Go binaries are great, but they&rsquo;re only portable to their target architecture/OS. It&rsquo;d be great to automatically build and push a container image. With about ~50 lines of YAML this can be automated with GitHub Actions.</p><p>For the container itself, I&rsquo;ll be using the base debian variant of <a href=https://github.com/GoogleContainerTools/distroless>Google&rsquo;s distroless container images</a>. <a href=https://github.com/robherley/tiny.coffee/blob/eebe8913e8094d44e3f29edd1e1f86d16bbe4c2f/Dockerfile>Here&rsquo;s the Dockerfile</a>.</p><p>When a tag is pushed, the workflow will:</p><ol>
+<li>Create a new release via <a href=https://github.com/actions/github-script><code>actions/github-script@v5</code></a> with a tag from the git ref (ie: <code>vX.Y.Z</code>) and set it as an output.</li><li>Login to GitHub container registry.</li><li>Extract image metadata from environment variables.</li><li>Build and push the image with the tag from Step 1.</li></ol><p>The workflow is <a href=https://github.com/robherley/tiny.coffee/blob/72508ec67d139d3a19a04a70d5893f1260f6ff71/.github/workflows/ci.yaml>defined here</a>, and the container image can be <a href=https://github.com/robherley/tiny.coffee/pkgs/container/tiny.coffee>found here</a>.</p><p>To run it locally, you can use <code>podman</code> or <code>docker</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@mbp$ </span>podman run -p 8000:8000 ghcr.io/robherley/tiny.coffee
+</span></span><span style=display:flex><span>2022/03/07 04:24:53 serving coffee on: 0.0.0.0:8000</span></span></code></pre></div><p>And that&rsquo;s it! Enjoy your coffee ☕</p><section class=footnotes role=doc-endnotes>
+<hr>
+<ol>
+<li id=fn:1 role=doc-endnote>
+<p>Unfortunately had to release <code>ibm.lol</code> after NameCheap forwarded me a letter from IBM IP Law Department. I didn&rsquo;t want to lose my job at the time 😅&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></article><div style="margin:2rem 0">
+<a style=float:left href=https://blog.reb.gg/posts/06-homelab-pt6/><i class="fas fa-angle-left"></i> Prev</a>
+</div><div id=footer-post-container>
+<div id=footer-post>
+<div id=nav-footer style=display:none>
+<ul>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></div><div id=share-footer style=display:none>
+<ul>
+<li>
+<a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f" aria-label=Facebook>
+<i class="fab fa-facebook fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&text=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Twitter>
+<i class="fab fa-twitter fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&title=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Linkedin>
+<i class="fab fa-linkedin fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&is_video=false&description=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Pinterest>
+<i class="fab fa-pinterest fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="mailto:?subject=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f" aria-label=Email>
+<i class="fas fa-envelope fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&title=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=Pocket>
+<i class="fab fa-get-pocket fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&title=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label=reddit>
+<i class="fab fa-reddit fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&name=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go&description=History%20of%20tiny.coffee%20There%20are%20people%20in%20this%20world%20that%20suffer%20from%20an%20incredible%20problem%20%26ndash%3b%20the%20unresistable%20urge%20to%20buy%20vanity%20domains.%20I%20am%20one%20of%20those%20people%2c%20and%20one%20of%20favorites%20%28excluding%20my%20brief%20ownership%20of%20ibm.lol%291%20is%20tiny.coffee.%0aAt%20first%20I%20didn%26rsquo%3bt%20know%20what%20I%20wanted%20to%20do%20with%20it%2c%20but%20then%20I%20was%20inspired%20by%20parrot.live%21%20When%20running%20curl%20parrot.live%2c%20you%20will%20be%20greeted%20with%20a%20ASCII%20party%20parrot%20in%20your%20terminal%3a" aria-label=Tumblr>
+<i class="fab fa-tumblr fa-lg" aria-hidden=true></i>
+</a>
+</li><li>
+<a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f07-go-tiny-coffee%2f&t=Rewriting%20tiny.coffee%20to%20%3c%20100%20lines%20of%20Go" aria-label="Hacker News">
+<i class="fab fa-hacker-news fa-lg" aria-hidden=true></i>
+</a>
+</li></ul></div><div id=actions-footer>
+<a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu>
+<i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share>
+<i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
+<i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a>
+</div></div></div><footer id=footer>
+<div class=footer-left>
+Copyright &copy; 2022 Rob Herley
+</div><div class=footer-right>
+<nav>
+<ul>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
+<script src=/lib/jquery/jquery.min.js></script>
+<script src=/js/main.js></script>
+</html>

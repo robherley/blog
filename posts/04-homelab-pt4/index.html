@@ -6,8 +6,7 @@
 <link rel=preload href=/lib/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2 as=font type=font/woff2 crossorigin=anonymous>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge">
-<title> Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates | rob's blog</title>
-<link rel=canonical href=https://blog.reb.gg/posts/04-homelab-pt4/>
+<title> Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates | rob's blog</title><link rel=canonical href=https://blog.reb.gg/posts/04-homelab-pt4/>
 <meta name=description content="👋 Hey y'all. This blog is my documented journey working with various aspects of technology. I'll try my best to keep things coherent and interesting, and hopefully I can teach a few people along the way.">
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=robots content="all,follow">
@@ -28,46 +27,37 @@ In this part, I&rsquo;ll setup some Proxmox API users for automation, setup a dy
 <script src=https://oss.maxcdn.com/respond/1.4.2/respond.min.js></script><![endif]-->
 <link rel=icon type=image/png href=https://blog.reb.gg/images/favicon.ico>
 <script defer data-domain=blog.reb.gg src=https://a.reb.gg/js/a.js></script>
-</head>
-<body class="max-width mx-auto px3 ltr">
+<script async src=https://unpkg.com/mermaid@latest/dist/mermaid.min.js></script>
+</head><body class="max-width mx-auto px3 ltr">
 <div class="content index py4">
 <div id=header-post>
 <a id=menu-icon href=#><i class="fas fa-bars fa-lg"></i></a>
 <a id=menu-icon-tablet href=#><i class="fas fa-bars fa-lg"></i></a>
-<a id=top-icon-tablet href=# onclick="$('html, body').animate({scrollTop:0},'fast')" style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
+<a id=top-icon-tablet href=# onclick='$("html, body").animate({scrollTop:0},"fast")' style=display:none aria-label="Top of Page"><i class="fas fa-chevron-up fa-lg"></i></a>
 <span id=menu>
 <span id=nav>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</span>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></span>
 <br>
 <span id=actions>
 <ul>
 <li>
 <a class=icon href=https://blog.reb.gg/posts/03-homelab-pt3/ aria-label=Previous>
-<i class="fas fa-chevron-left" aria-hidden=true onmouseover="$('#i-prev').toggle()" onmouseout="$('#i-prev').toggle()"></i>
+<i class="fas fa-chevron-left" aria-hidden=true onmouseover='$("#i-prev").toggle()' onmouseout='$("#i-prev").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=https://blog.reb.gg/posts/05-homelab-pt5/ aria-label=Next>
-<i class="fas fa-chevron-right" aria-hidden=true onmouseover="$('#i-next').toggle()" onmouseout="$('#i-next').toggle()"></i>
+<i class="fas fa-chevron-right" aria-hidden=true onmouseover='$("#i-next").toggle()' onmouseout='$("#i-next").toggle()'></i>
 </a>
-</li>
-<li>
-<a class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
-<i class="fas fa-chevron-up" aria-hidden=true onmouseover="$('#i-top').toggle()" onmouseout="$('#i-top').toggle()"></i>
+</li><li>
+<a class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
+<i class="fas fa-chevron-up" aria-hidden=true onmouseover='$("#i-top").toggle()' onmouseout='$("#i-top").toggle()'></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href=# aria-label=Share>
-<i class="fas fa-share-alt" aria-hidden=true onmouseover="$('#i-share').toggle()" onmouseout="$('#i-share').toggle()" onclick="return $('#share').toggle(),!1"></i>
+<i class="fas fa-share-alt" aria-hidden=true onmouseover='$("#i-share").toggle()' onmouseout='$("#i-share").toggle()' onclick='return $("#share").toggle(),!1'></i>
 </a>
-</li>
-</ul>
-<span id=i-prev class=info style=display:none>Previous post</span>
+</li></ul><span id=i-prev class=info style=display:none>Previous post</span>
 <span id=i-next class=info style=display:none>Next post</span>
 <span id=i-top class=info style=display:none>Back to top</span>
 <span id=i-share class=info style=display:none>Share post</span>
@@ -79,68 +69,52 @@ In this part, I&rsquo;ll setup some Proxmox API users for automation, setup a dy
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f" aria-label=Facebook>
 <i class="fab fa-facebook" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&text=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Twitter>
 <i class="fab fa-twitter" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&title=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Linkedin>
 <i class="fab fa-linkedin" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&is_video=false&description=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Pinterest>
 <i class="fab fa-pinterest" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f" aria-label=Email>
 <i class="fas fa-envelope" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&title=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Pocket>
 <i class="fab fa-get-pocket" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&title=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=reddit>
 <i class="fab fa-reddit" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&name=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20configured%20Ansible%20and%20made%20some%20basic%20playbooks%20for%20the%20homelab%20management.%20Eventually%2c%20I%26rsquo%3bll%20be%20deploying%20a%20plethora%20of%20VMs%20and%20containers%2c%20but%20managing%20a%20gigantic%20inventory%20every%20time%20a%20guest%20is%20spun%20up%2fdown%20would%20be%20a%20hassle.%20Fortunately%2c%20there%20are%20community%20plugins%20for%20Ansible%20that%20allow%20the%20use%20of%20a%20Proxmox%20cluster%20as%20a%20dynamic%20inventory.%0aIn%20this%20part%2c%20I%26rsquo%3bll%20setup%20some%20Proxmox%20API%20users%20for%20automation%2c%20setup%20a%20dynamic%20inventory%20for%20Proxmox%20guests%20and%20prepare%20a%20template%20for%20Linux%20containers." aria-label=Tumblr>
 <i class="fab fa-tumblr" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&t=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label="Hacker News">
 <i class="fab fa-hacker-news" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-</span>
-</div>
-<div style=margin-bottom:2rem>
+</li></ul></div></span>
+</div><div style=margin-bottom:2rem>
 <a href=https://blog.reb.gg/><i class="fas fa-angle-left"></i> Back</a>
-</div>
-<article class=post itemscope itemtype=http://schema.org/BlogPosting>
+</div><article class=post itemscope itemtype=http://schema.org/BlogPosting>
 <header>
 <h1 class=posttitle itemprop="name headline">
 Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates
-</h1>
-<div class=meta>
+</h1><div class=meta>
 <div class=postdate>
 <time datetime="2022-01-12 00:00:00 -0500 -0500" itemprop=datePublished>2022 Jan 12</time>
-</div>
-<div class=article-read-time>
+</div><div class=article-read-time>
 <i class="far fa-clock"></i>
 6 minute read
-</div>
-<div class=article-tag>
+</div><div class=article-tag>
 <i class="fas fa-tag"></i>
 <a class=tag-link href=/tags/proxmox rel=tag>proxmox</a>
 ,
@@ -149,299 +123,195 @@ Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates
 <a class=tag-link href=/tags/lxc rel=tag>lxc</a>
 ,
 <a class=tag-link href=/tags/systemd rel=tag>systemd</a>
-</div>
-</div>
-</header>
-<div id=toc>
+</div></div></header><div id=toc>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#creating-an-automation-group-and-user>Creating an automation group and user</a></li>
-<li><a href=#proxmox-plugin-for-ansible>Proxmox plugin for Ansible</a></li>
-<li><a href=#proxmox-as-a-dynamic-inventory>Proxmox as a dynamic inventory</a></li>
-<li><a href=#lxc-templates>LXC Templates</a></li>
-<li><a href=#next>Next</a></li>
-</ul>
-</nav>
-</div>
-<div class=content itemprop=articleBody>
-<p>In the previous part of this series, I configured Ansible and made some basic playbooks for the homelab management. Eventually, I&rsquo;ll be deploying a plethora of VMs and containers, but managing a gigantic inventory every time a guest is spun up/down would be a hassle. Fortunately, there are community plugins for Ansible that allow the use of a Proxmox cluster as a <a href=https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html>dynamic inventory</a>.</p>
-<p>In this part, I&rsquo;ll setup some Proxmox API users for automation, setup a dynamic inventory for Proxmox guests and prepare a template for Linux containers.</p>
-<h2 id=creating-an-automation-group-and-user>Creating an automation group and user</h2>
-<p>Permissions on Proxmox are scoped to a cluster, which is great since only need a single user is required to interact with both Proxmox nodes APIs. For a single node Proxmox installation, this&rsquo;ll be the exact same process. A user called <code>ansible</code> will be made in the built in <a href=https://pve.proxmox.com/wiki/User_Management#pveum_authentication_realms>PVE realm</a> using the <code>pveum</code> utility. Note: for <code>pveum</code> (like most Proxmox CLI tools) must be accessed by the <code>root</code> user, so escalation (<code>sudo su -</code>) from a non-root user is required. Alternatively, these steps can also be done via the web console under Datacenter > Permissions.</p>
-<p>On one of the Proxmox nodes:</p>
-<ol>
+<li><a href=#creating-an-automation-group-and-user>Creating an automation group and user</a></li><li><a href=#proxmox-plugin-for-ansible>Proxmox plugin for Ansible</a></li><li><a href=#proxmox-as-a-dynamic-inventory>Proxmox as a dynamic inventory</a></li><li><a href=#lxc-templates>LXC Templates</a></li><li><a href=#next>Next</a></li></ul></nav></div><div class=content itemprop=articleBody>
+<p>In the previous part of this series, I configured Ansible and made some basic playbooks for the homelab management. Eventually, I&rsquo;ll be deploying a plethora of VMs and containers, but managing a gigantic inventory every time a guest is spun up/down would be a hassle. Fortunately, there are community plugins for Ansible that allow the use of a Proxmox cluster as a <a href=https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html>dynamic inventory</a>.</p><p>In this part, I&rsquo;ll setup some Proxmox API users for automation, setup a dynamic inventory for Proxmox guests and prepare a template for Linux containers.</p><h2 id=creating-an-automation-group-and-user>Creating an automation group and user</h2><p>Permissions on Proxmox are scoped to a cluster, which is great since only need a single user is required to interact with both Proxmox nodes APIs. For a single node Proxmox installation, this&rsquo;ll be the exact same process. A user called <code>ansible</code> will be made in the built in <a href=https://pve.proxmox.com/wiki/User_Management#pveum_authentication_realms>PVE realm</a> using the <code>pveum</code> utility. Note: for <code>pveum</code> (like most Proxmox CLI tools) must be accessed by the <code>root</code> user, so escalation (<code>sudo su -</code>) from a non-root user is required. Alternatively, these steps can also be done via the web console under Datacenter > Permissions.</p><p>On one of the Proxmox nodes:</p><ol>
 <li>Create a group called <code>automation</code>:
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveum group add automation</code></pre></div></li>
-<li>Since this will group will be primarily for managing the entire system, it&rsquo;ll be assigned to the Administrator role:
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveum acl modify / --group automation --role Administrator</code></pre></div></li>
-<li>And then make the <code>ansible</code> user, add it to the automation group, and set a password:
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveum user add ansible@pve --groups automation --password &lt;some password&gt;</code></pre></div></li>
-</ol>
-<h2 id=proxmox-plugin-for-ansible>Proxmox plugin for Ansible</h2>
-<p>Ansible has a great community that develop <a href=https://docs.ansible.com/ansible/latest/plugins/plugins.html>plugins</a> to extend Ansible&rsquo;s core functionality. Within the <code>community.general</code> collection, there&rsquo;s a ton of useful plugins for inventories, configurations, packages, etc. This module is usually included within the default <code>ansible</code> package, but for the sake of verbosity, a requirements file can be made:</p>
-<p>In <code>ansible/requirements.yml</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=color:#ff79c6>collections</span>:
-  - community.general
-</code></pre></div><p>Any additional collections can be added to the requirements file. And to install them, they must be pulled from <a href=https://docs.ansible.com/ansible/latest/galaxy/user_guide.html>ansible-galaxy</a>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-galaxy install -r requirements.yml</code></pre></div>
-<p>The specific plugin <code>community.general.proxmox</code> is used to configure a <a href=https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_inventory.html>dynamic inventory</a>. There is also a <a href=https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html>module</a> within that same plugin that can be used to manage instances within tasks.</p>
-<h2 id=proxmox-as-a-dynamic-inventory>Proxmox as a dynamic inventory</h2>
-<p>A new inventory file will hold the configuration for the dynamic inventory:</p>
-<p>In <code>ansible/inventory/proxmox.yml</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=color:#ff79c6>plugin</span>: community.general.proxmox
-
-<span style=color:#ff79c6>url</span>: https://192.168.1.100:8006
-<span style=color:#ff79c6>user</span>: ansible@pve
-<span style=color:#ff79c6>password</span>: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  <span style=color:#bd93f9>32376266393636643961653739613661626433363062393334663432303533393337353866333633</span>
-  3630363966333562346162626466336538366532333864300a633333353237326662386466653431
-  <span style=color:#bd93f9>63333061353533666233313334356238323137313861363630313161613336303739663733306135</span>
-  6637663436306537650a633566343734313230343632336130623435383931333732376538383665
-  <span style=color:#bd93f9>64393730313335343035333966636133306639633439393434363130366466303635</span>
-
-<span style=color:#ff79c6>validate_certs</span>: <span style=color:#ff79c6>false</span> <span style=color:#6272a4># enable if/when proxmox has valid certificates</span>
-<span style=color:#ff79c6>want_facts</span>: <span style=color:#ff79c6>true</span> <span style=color:#6272a4># collect vm/container metadata as facts</span>
-<span style=color:#ff79c6>want_proxmox_nodes_ansible_host</span>: <span style=color:#ff79c6>false</span> <span style=color:#6272a4># override `ansible_host` for node</span>
-</code></pre></div><p>The <code>user</code> and <code>password</code> are from the <code>ansible</code> user just previously configured. To get the giant encrypted block of a password, it&rsquo;s the following command:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-vault encrypt_string &lt;ansible user password&gt;</code></pre></div>
-<p>Note: Unlike the user password in the previous part of this series, this password does not need to be hashed or salted. The value is being passed as API authentication to Proxmox.</p>
-<p>One of the great things about dynamic inventories is that they add additional groups based on specific Proxmox <a href=https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html><em>facts</em></a>. For instance, the group <code>proxmox_all_running</code> returns any VMs or containers running, which we can add to a playbook:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml>- <span style=color:#ff79c6>name</span>: some-playbook
-  <span style=color:#ff79c6>hosts</span>:
-    - proxmox_all_running
-  <span style=color:#ff79c6>tasks</span>:
-    ...
-</code></pre></div><p>To see a list of all facts in an inventory, the following command can be used:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-inventory --list</code></pre></div>
-<p>A new LXC can be used for a quick test of the inventory. On one of the nodes, download the Ubuntu container image using <a href=https://pve.proxmox.com/pve-docs/pveam.1.html><code>pveam</code></a> (or web console: Node > Storage > CT Templates > Templates):</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam update
-update successful
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam available --section system | grep ubuntu
-system          ubuntu-16.04-standard_16.04.5-1_amd64.tar.gz
-system          ubuntu-18.04-standard_18.04.1-1_amd64.tar.gz
-system          ubuntu-20.04-standard_20.04-1_amd64.tar.gz
-system          ubuntu-21.04-standard_21.04-1_amd64.tar.gz
-system          ubuntu-21.10-standard_21.10-1_amd64.tar.zst
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam download rusty-dir ubuntu-20.04-standard_20.04-1_amd64.tar.gz
-...
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam list rusty-dir
-NAME                                                         SIZE
-rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz      204.28MB</code></pre></div>
-<p>Now that the image is downloaded, time to create a container using <a href=https://pve.proxmox.com/pve-docs/pct.1.html><code>pct</code></a> (or web console: Top Left > Create CT):</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span><span style=color:#8be9fd;font-style:italic>IMG_PATH</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#39;rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz&#39;</span>
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pct create <span style=color:#bd93f9>101</span> <span style=color:#8be9fd;font-style:italic>$IMG_PATH</span> --hostname tmp-ct --rootfs ssd-mirror:8 --net0 <span style=color:#8be9fd;font-style:italic>name</span><span style=color:#ff79c6>=</span>eth0,bridge<span style=color:#ff79c6>=</span>vmbr0,ip<span style=color:#ff79c6>=</span>dhcp --password tmp-password --start</code></pre></div>
-<p>To summarize the above, a container was created with id of <code>101</code> and a hostname of <code>tmp-ct</code>. The additional configuration options are for the filesystem storage and setting up a network interface. A password will need to be set to interact with the container.</p>
-<p>To test the Ansible setup, an interactive console is required to add a default user called <code>rob</code> with the expected SSH keys:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct console <span style=color:#bd93f9>101</span> <span style=color:#6272a4># login is `root` with the password from `pct create`</span>
-<span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>apt update
-<span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>apt install ssh-import-id
-<span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>adduser rob
-<span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>su rob
-<span style=color:#50fa7b;user-select:none>rob@tmp-ct$ </span>ssh-import-id-gh robherley</code></pre></div>
-<p>Now, when all the Ansible hosts are pinged, the new container appears:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible all -m ping
-nuc | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span>
-r720 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span>
-tmp-ct | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span>
-piprimary | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span></code></pre></div>
-<p>It can also be found under the <code>proxmox_all_running</code> group mentioned before:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible proxmox_all_running -m ping
-tmp-ct | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span></code></pre></div>
-<p>Finally, the temporary container can be cleaned up:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct stop <span style=color:#bd93f9>101</span>
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pct destroy <span style=color:#bd93f9>101</span></code></pre></div>
-<h2 id=lxc-templates>LXC Templates</h2>
-<p>Now would be a good time to create a template for any other Ubuntu containers that may be needed in the future.</p>
-<p>Make a new container with specific sizing for memory and cpu:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span><span style=color:#8be9fd;font-style:italic>IMG_PATH</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#39;rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz&#39;</span>
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pct create <span style=color:#bd93f9>1000</span> <span style=color:#8be9fd;font-style:italic>$IMG_PATH</span> <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--hostname ubuntu-ct-template <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--rootfs ssd-mirror:16 <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--net0 <span style=color:#8be9fd;font-style:italic>name</span><span style=color:#ff79c6>=</span>eth0,bridge<span style=color:#ff79c6>=</span>vmbr0,firewall<span style=color:#ff79c6>=</span>1,ip<span style=color:#ff79c6>=</span>dhcp <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--memory <span style=color:#bd93f9>4096</span> <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--cores <span style=color:#bd93f9>2</span> <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--password &lt;root password&gt; <span style=color:#f1fa8c>\
-</span><span style=color:#f1fa8c></span>--start</code></pre></div>
-<p>Similar to before, go into the container and give it the bare minimal setup for an Ansible connection. But this time, the container will need to be cleaned up so it can be templated.</p>
-<p>Add the <code>ssh-import-id</code> package, make the <code>rob</code> user, import keys, and allow passwordless sudo:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct console <span style=color:#bd93f9>1000</span>
-<span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>apt update <span style=color:#ff79c6>&amp;&amp;</span> apt dist-upgrade
-<span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>apt install ssh-import-id
-<span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>apt autoremove <span style=color:#ff79c6>&amp;&amp;</span> apt clean
-<span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>adduser rob --shell /bin/bash
-<span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>usermod -aG sudo rob
-<span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>su rob
-<span style=color:#50fa7b;user-select:none>rob@ubuntu-ct-template$ </span>ssh-import-id-gh robherley
-<span style=color:#50fa7b;user-select:none>rob@ubuntu-ct-template$ </span><span style=color:#8be9fd;font-style:italic>exit</span>
-<span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>visudo /etc/sudoers <span style=color:#6272a4># allow passwordless sudo</span></code></pre></div>
-<p>Now, here&rsquo;s a minor annoyance. When the container template is copied, it also copies all of the host keys as well, so any cloned container will have the same fingerprint. Those host keys need to be deleted:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>rm /etc/ssh/ssh_host_*</code></pre></div>
-<p>But, host keys will be required in order to SSH to the container. To rememdy this, I&rsquo;ll make a systemd service to autogenerate host keys at startup:</p>
-<p>In <code>/etc/systemd/system/autohostkeys.service</code>:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plaintext data-lang=plaintext>[Unit]
-Description=Auto Create Host Keys
-
-[Service]
-ExecStart=/usr/bin/ssh-keygen -A
-
-[Install]
-WantedBy=default.target
-</code></pre></div><p>Then enable the service (but don&rsquo;t start it):</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>systemctl <span style=color:#8be9fd;font-style:italic>enable</span> autohostkeys</code></pre></div>
-<p>Finally the container can be shutdown, and converted to a template:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct shutdown <span style=color:#bd93f9>1000</span>
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pct <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>1000</span> --template <span style=color:#bd93f9>1</span></code></pre></div>
-<p>Now, time to clone a couple containers and see if they are reachable from Ansible:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct clone <span style=color:#bd93f9>1000</span> <span style=color:#bd93f9>101</span> --full --hostname dolly1
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pct clone <span style=color:#bd93f9>1000</span> <span style=color:#bd93f9>102</span> --full --hostname dolly2
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pct start <span style=color:#bd93f9>101</span>
-<span style=color:#50fa7b;user-select:none>root@r720$ </span>pct start <span style=color:#bd93f9>102</span></code></pre></div>
-<p>And ping the Proxmox running group:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>root@r720$ </span>ansible proxmox_all_running -m ping
-dolly2 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span>
-dolly1 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
-    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
-        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
-    <span style=color:#ff79c6>}</span>,
-    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
-    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
-<span style=color:#ff79c6>}</span></code></pre></div>
-<p>And a quick double check to make sure the host keys generated properly:</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=color:#50fa7b;user-select:none>rob@dolly1$ </span>cat /etc/ssh/ssh_host_ecdsa_key.pub
-ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAWQVuOd8PNu88qXJ+HYevHc0mwiJ1+G1UUravyXm6tDZrxtmDvbzcOqaE2jEb10qLKRV7ILx1RKrxyHWQo2qRk<span style=color:#ff79c6>=</span> root@dolly1
-<span style=color:#50fa7b;user-select:none>rob@dolly2$ </span>cat /etc/ssh/ssh_host_ecdsa_key.pub
-ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOEj3rEWJhb5fWv+IXtKTy3R6xtpOtMeBfAOo6Qq5/wLxoJmoh5kTekoJJ5tuTahycLhedakbY0Zxexjog8a3dY<span style=color:#ff79c6>=</span> root@dolly2</code></pre></div>
-<p>Perfect, now containers can be cloned and immediately wired up to Ansible after provision. And to harden them, the new <code>proxmox_all_running</code> host group can be added to the existing playbooks.</p>
-<h2 id=next>Next</h2>
-<p>With dynamic inventory, any Linux VM/container running in the Proxmox cluster can be seen by Ansible automatically. And with the prepared LXC templates, clones are ready to go for automation with any manual intervention. In the next part, I&rsquo;ll go over how to use cloud-init so the same level of automation can be achieved for virtual machine clones.</p>
-</div>
-</article>
-<div style="margin:2rem 0">
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveum group add automation</span></span></code></pre></div></li><li>Since this will group will be primarily for managing the entire system, it&rsquo;ll be assigned to the Administrator role:
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveum acl modify / --group automation --role Administrator</span></span></code></pre></div></li><li>And then make the <code>ansible</code> user, add it to the automation group, and set a password:
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveum user add ansible@pve --groups automation --password &lt;some password&gt;</span></span></code></pre></div></li></ol><h2 id=proxmox-plugin-for-ansible>Proxmox plugin for Ansible</h2><p>Ansible has a great community that develop <a href=https://docs.ansible.com/ansible/latest/plugins/plugins.html>plugins</a> to extend Ansible&rsquo;s core functionality. Within the <code>community.general</code> collection, there&rsquo;s a ton of useful plugins for inventories, configurations, packages, etc. This module is usually included within the default <code>ansible</code> package, but for the sake of verbosity, a requirements file can be made:</p><p>In <code>ansible/requirements.yml</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span><span style=color:#ff79c6>collections</span>:
+</span></span><span style=display:flex><span>  - community.general
+</span></span></code></pre></div><p>Any additional collections can be added to the requirements file. And to install them, they must be pulled from <a href=https://docs.ansible.com/ansible/latest/galaxy/user_guide.html>ansible-galaxy</a>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-galaxy install -r requirements.yml</span></span></code></pre></div><p>The specific plugin <code>community.general.proxmox</code> is used to configure a <a href=https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_inventory.html>dynamic inventory</a>. There is also a <a href=https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html>module</a> within that same plugin that can be used to manage instances within tasks.</p><h2 id=proxmox-as-a-dynamic-inventory>Proxmox as a dynamic inventory</h2><p>A new inventory file will hold the configuration for the dynamic inventory:</p><p>In <code>ansible/inventory/proxmox.yml</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span><span style=color:#ff79c6>plugin</span>: community.general.proxmox
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>url</span>: https://192.168.1.100:8006
+</span></span><span style=display:flex><span><span style=color:#ff79c6>user</span>: ansible@pve
+</span></span><span style=display:flex><span><span style=color:#ff79c6>password</span>: !vault |
+</span></span><span style=display:flex><span>  $ANSIBLE_VAULT;1.1;AES256
+</span></span><span style=display:flex><span>  <span style=color:#bd93f9>32376266393636643961653739613661626433363062393334663432303533393337353866333633</span>
+</span></span><span style=display:flex><span>  3630363966333562346162626466336538366532333864300a633333353237326662386466653431
+</span></span><span style=display:flex><span>  <span style=color:#bd93f9>63333061353533666233313334356238323137313861363630313161613336303739663733306135</span>
+</span></span><span style=display:flex><span>  6637663436306537650a633566343734313230343632336130623435383931333732376538383665
+</span></span><span style=display:flex><span>  <span style=color:#bd93f9>64393730313335343035333966636133306639633439393434363130366466303635</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>validate_certs</span>: <span style=color:#ff79c6>false</span> <span style=color:#6272a4># enable if/when proxmox has valid certificates</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>want_facts</span>: <span style=color:#ff79c6>true</span> <span style=color:#6272a4># collect vm/container metadata as facts</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>want_proxmox_nodes_ansible_host</span>: <span style=color:#ff79c6>false</span> <span style=color:#6272a4># override `ansible_host` for node</span>
+</span></span></code></pre></div><p>The <code>user</code> and <code>password</code> are from the <code>ansible</code> user just previously configured. To get the giant encrypted block of a password, it&rsquo;s the following command:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-vault encrypt_string &lt;ansible user password&gt;</span></span></code></pre></div><p>Note: Unlike the user password in the previous part of this series, this password does not need to be hashed or salted. The value is being passed as API authentication to Proxmox.</p><p>One of the great things about dynamic inventories is that they add additional groups based on specific Proxmox <a href=https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html><em>facts</em></a>. For instance, the group <code>proxmox_all_running</code> returns any VMs or containers running, which we can add to a playbook:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yml data-lang=yml><span style=display:flex><span>- <span style=color:#ff79c6>name</span>: some-playbook
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>hosts</span>:
+</span></span><span style=display:flex><span>    - proxmox_all_running
+</span></span><span style=display:flex><span>  <span style=color:#ff79c6>tasks</span>:
+</span></span><span style=display:flex><span>    ...
+</span></span></code></pre></div><p>To see a list of all facts in an inventory, the following command can be used:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible-inventory --list</span></span></code></pre></div><p>A new LXC can be used for a quick test of the inventory. On one of the nodes, download the Ubuntu container image using <a href=https://pve.proxmox.com/pve-docs/pveam.1.html><code>pveam</code></a> (or web console: Node > Storage > CT Templates > Templates):</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam update
+</span></span><span style=display:flex><span>update successful
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam available --section system | grep ubuntu
+</span></span><span style=display:flex><span>system          ubuntu-16.04-standard_16.04.5-1_amd64.tar.gz
+</span></span><span style=display:flex><span>system          ubuntu-18.04-standard_18.04.1-1_amd64.tar.gz
+</span></span><span style=display:flex><span>system          ubuntu-20.04-standard_20.04-1_amd64.tar.gz
+</span></span><span style=display:flex><span>system          ubuntu-21.04-standard_21.04-1_amd64.tar.gz
+</span></span><span style=display:flex><span>system          ubuntu-21.10-standard_21.10-1_amd64.tar.zst
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam download rusty-dir ubuntu-20.04-standard_20.04-1_amd64.tar.gz
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pveam list rusty-dir
+</span></span><span style=display:flex><span>NAME                                                         SIZE
+</span></span><span style=display:flex><span>rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz      204.28MB</span></span></code></pre></div><p>Now that the image is downloaded, time to create a container using <a href=https://pve.proxmox.com/pve-docs/pct.1.html><code>pct</code></a> (or web console: Top Left > Create CT):</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span><span style=color:#8be9fd;font-style:italic>IMG_PATH</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#39;rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct create <span style=color:#bd93f9>101</span> <span style=color:#8be9fd;font-style:italic>$IMG_PATH</span> --hostname tmp-ct --rootfs ssd-mirror:8 --net0 <span style=color:#8be9fd;font-style:italic>name</span><span style=color:#ff79c6>=</span>eth0,bridge<span style=color:#ff79c6>=</span>vmbr0,ip<span style=color:#ff79c6>=</span>dhcp --password tmp-password --start</span></span></code></pre></div><p>To summarize the above, a container was created with id of <code>101</code> and a hostname of <code>tmp-ct</code>. The additional configuration options are for the filesystem storage and setting up a network interface. A password will need to be set to interact with the container.</p><p>To test the Ansible setup, an interactive console is required to add a default user called <code>rob</code> with the expected SSH keys:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct console <span style=color:#bd93f9>101</span> <span style=color:#6272a4># login is `root` with the password from `pct create`</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>apt update
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>apt install ssh-import-id
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>adduser rob
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@tmp-ct$ </span>su rob
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@tmp-ct$ </span>ssh-import-id-gh robherley</span></span></code></pre></div><p>Now, when all the Ansible hosts are pinged, the new container appears:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible all -m ping
+</span></span><span style=display:flex><span>nuc | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>r720 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>tmp-ct | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>piprimary | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span></span></span></code></pre></div><p>It can also be found under the <code>proxmox_all_running</code> group mentioned before:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@macbook$ </span>ansible proxmox_all_running -m ping
+</span></span><span style=display:flex><span>tmp-ct | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span></span></span></code></pre></div><p>Finally, the temporary container can be cleaned up:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct stop <span style=color:#bd93f9>101</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct destroy <span style=color:#bd93f9>101</span></span></span></code></pre></div><h2 id=lxc-templates>LXC Templates</h2><p>Now would be a good time to create a template for any other Ubuntu containers that may be needed in the future.</p><p>Make a new container with specific sizing for memory and cpu:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span><span style=color:#8be9fd;font-style:italic>IMG_PATH</span><span style=color:#ff79c6>=</span><span style=color:#f1fa8c>&#39;rusty-dir:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct create <span style=color:#bd93f9>1000</span> <span style=color:#8be9fd;font-style:italic>$IMG_PATH</span> <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--hostname ubuntu-ct-template <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--rootfs ssd-mirror:16 <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--net0 <span style=color:#8be9fd;font-style:italic>name</span><span style=color:#ff79c6>=</span>eth0,bridge<span style=color:#ff79c6>=</span>vmbr0,firewall<span style=color:#ff79c6>=</span>1,ip<span style=color:#ff79c6>=</span>dhcp <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--memory <span style=color:#bd93f9>4096</span> <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--cores <span style=color:#bd93f9>2</span> <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--password &lt;root password&gt; <span style=color:#f1fa8c>\
+</span></span></span><span style=display:flex><span><span style=color:#f1fa8c></span>--start</span></span></code></pre></div><p>Similar to before, go into the container and give it the bare minimal setup for an Ansible connection. But this time, the container will need to be cleaned up so it can be templated.</p><p>Add the <code>ssh-import-id</code> package, make the <code>rob</code> user, import keys, and allow passwordless sudo:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct console <span style=color:#bd93f9>1000</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>apt update <span style=color:#ff79c6>&amp;&amp;</span> apt dist-upgrade
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>apt install ssh-import-id
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>apt autoremove <span style=color:#ff79c6>&amp;&amp;</span> apt clean
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>adduser rob --shell /bin/bash
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>usermod -aG sudo rob
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>su rob
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@ubuntu-ct-template$ </span>ssh-import-id-gh robherley
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@ubuntu-ct-template$ </span><span style=color:#8be9fd;font-style:italic>exit</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>visudo /etc/sudoers <span style=color:#6272a4># allow passwordless sudo</span></span></span></code></pre></div><p>Now, here&rsquo;s a minor annoyance. When the container template is copied, it also copies all of the host keys as well, so any cloned container will have the same fingerprint. Those host keys need to be deleted:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>rm /etc/ssh/ssh_host_*</span></span></code></pre></div><p>But, host keys will be required in order to SSH to the container. To rememdy this, I&rsquo;ll make a systemd service to autogenerate host keys at startup:</p><p>In <code>/etc/systemd/system/autohostkeys.service</code>:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-plaintext data-lang=plaintext><span style=display:flex><span>[Unit]
+</span></span><span style=display:flex><span>Description=Auto Create Host Keys
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[Service]
+</span></span><span style=display:flex><span>ExecStart=/usr/bin/ssh-keygen -A
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[Install]
+</span></span><span style=display:flex><span>WantedBy=default.target
+</span></span></code></pre></div><p>Then enable the service (but don&rsquo;t start it):</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@ubuntu-ct-template$ </span>systemctl <span style=color:#8be9fd;font-style:italic>enable</span> autohostkeys</span></span></code></pre></div><p>Finally the container can be shutdown, and converted to a template:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct shutdown <span style=color:#bd93f9>1000</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct <span style=color:#8be9fd;font-style:italic>set</span> <span style=color:#bd93f9>1000</span> --template <span style=color:#bd93f9>1</span></span></span></code></pre></div><p>Now, time to clone a couple containers and see if they are reachable from Ansible:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct clone <span style=color:#bd93f9>1000</span> <span style=color:#bd93f9>101</span> --full --hostname dolly1
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct clone <span style=color:#bd93f9>1000</span> <span style=color:#bd93f9>102</span> --full --hostname dolly2
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct start <span style=color:#bd93f9>101</span>
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>pct start <span style=color:#bd93f9>102</span></span></span></code></pre></div><p>And ping the Proxmox running group:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>root@r720$ </span>ansible proxmox_all_running -m ping
+</span></span><span style=display:flex><span>dolly2 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span>
+</span></span><span style=display:flex><span>dolly1 | <span style=color:#8be9fd;font-style:italic>SUCCESS</span> <span style=color:#ff79c6>=</span>&gt; <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ansible_facts&#34;</span>: <span style=color:#ff79c6>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#f1fa8c>&#34;discovered_interpreter_python&#34;</span>: <span style=color:#f1fa8c>&#34;/usr/bin/python3&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ff79c6>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#f1fa8c>&#34;ping&#34;</span>: <span style=color:#f1fa8c>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#ff79c6>}</span></span></span></code></pre></div><p>And a quick double check to make sure the host keys generated properly:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@dolly1$ </span>cat /etc/ssh/ssh_host_ecdsa_key.pub
+</span></span><span style=display:flex><span>ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAWQVuOd8PNu88qXJ+HYevHc0mwiJ1+G1UUravyXm6tDZrxtmDvbzcOqaE2jEb10qLKRV7ILx1RKrxyHWQo2qRk<span style=color:#ff79c6>=</span> root@dolly1
+</span></span><span style=display:flex><span><span style=color:#50fa7b;user-select:none>rob@dolly2$ </span>cat /etc/ssh/ssh_host_ecdsa_key.pub
+</span></span><span style=display:flex><span>ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOEj3rEWJhb5fWv+IXtKTy3R6xtpOtMeBfAOo6Qq5/wLxoJmoh5kTekoJJ5tuTahycLhedakbY0Zxexjog8a3dY<span style=color:#ff79c6>=</span> root@dolly2</span></span></code></pre></div><p>Perfect, now containers can be cloned and immediately wired up to Ansible after provision. And to harden them, the new <code>proxmox_all_running</code> host group can be added to the existing playbooks.</p><h2 id=next>Next</h2><p>With dynamic inventory, any Linux VM/container running in the Proxmox cluster can be seen by Ansible automatically. And with the prepared LXC templates, clones are ready to go for automation with any manual intervention. In the next part, I&rsquo;ll go over how to use cloud-init so the same level of automation can be achieved for virtual machine clones.</p></div></article><div style="margin:2rem 0">
 <a style=float:left href=https://blog.reb.gg/posts/03-homelab-pt3/><i class="fas fa-angle-left"></i> Prev</a>
 <a style=float:right href=https://blog.reb.gg/posts/05-homelab-pt5/>Next <i class="fas fa-angle-right"></i></a>
-</div>
-<div id=footer-post-container>
+</div><div id=footer-post-container>
 <div id=footer-post>
 <div id=nav-footer style=display:none>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</div>
-<div id=share-footer style=display:none>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></div><div id=share-footer style=display:none>
 <ul>
 <li>
 <a class=icon href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f" aria-label=Facebook>
 <i class="fab fa-facebook fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://twitter.com/share?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&text=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Twitter>
 <i class="fab fa-twitter fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.linkedin.com/shareArticle?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&title=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Linkedin>
 <i class="fab fa-linkedin fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://pinterest.com/pin/create/bookmarklet/?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&is_video=false&description=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Pinterest>
 <i class="fab fa-pinterest fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="mailto:?subject=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates&body=Check out this article: https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f" aria-label=Email>
 <i class="fas fa-envelope fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://getpocket.com/save?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&title=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=Pocket>
 <i class="fab fa-get-pocket fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://reddit.com/submit?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&title=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label=reddit>
 <i class="fab fa-reddit fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="http://www.tumblr.com/share/link?url=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&name=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates&description=In%20the%20previous%20part%20of%20this%20series%2c%20I%20configured%20Ansible%20and%20made%20some%20basic%20playbooks%20for%20the%20homelab%20management.%20Eventually%2c%20I%26rsquo%3bll%20be%20deploying%20a%20plethora%20of%20VMs%20and%20containers%2c%20but%20managing%20a%20gigantic%20inventory%20every%20time%20a%20guest%20is%20spun%20up%2fdown%20would%20be%20a%20hassle.%20Fortunately%2c%20there%20are%20community%20plugins%20for%20Ansible%20that%20allow%20the%20use%20of%20a%20Proxmox%20cluster%20as%20a%20dynamic%20inventory.%0aIn%20this%20part%2c%20I%26rsquo%3bll%20setup%20some%20Proxmox%20API%20users%20for%20automation%2c%20setup%20a%20dynamic%20inventory%20for%20Proxmox%20guests%20and%20prepare%20a%20template%20for%20Linux%20containers." aria-label=Tumblr>
 <i class="fab fa-tumblr fa-lg" aria-hidden=true></i>
 </a>
-</li>
-<li>
+</li><li>
 <a class=icon href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fblog.reb.gg%2fposts%2f04-homelab-pt4%2f&t=Homelab%20Part%20IV%3a%20Proxmox%20Dynamic%20Inventory%20and%20LXC%20Templates" aria-label="Hacker News">
 <i class="fab fa-hacker-news fa-lg" aria-hidden=true></i>
 </a>
-</li>
-</ul>
-</div>
-<div id=actions-footer>
-<a id=menu-toggle class=icon href=# onclick="return $('#nav-footer').toggle(),!1" aria-label=Menu>
+</li></ul></div><div id=actions-footer>
+<a id=menu-toggle class=icon href=# onclick='return $("#nav-footer").toggle(),!1' aria-label=Menu>
 <i class="fas fa-bars fa-lg" aria-hidden=true></i> Menu</a>
-<a id=share-toggle class=icon href=# onclick="return $('#share-footer').toggle(),!1" aria-label=Share>
+<a id=share-toggle class=icon href=# onclick='return $("#share-footer").toggle(),!1' aria-label=Share>
 <i class="fas fa-share-alt fa-lg" aria-hidden=true></i> share</a>
-<a id=top style=display:none class=icon href=# onclick="$('html, body').animate({scrollTop:0},'fast')" aria-label="Top of Page">
+<a id=top style=display:none class=icon href=# onclick='$("html, body").animate({scrollTop:0},"fast")' aria-label="Top of Page">
 <i class="fas fa-chevron-up fa-lg" aria-hidden=true></i> Top</a>
-</div>
-</div>
-</div>
-<footer id=footer>
+</div></div></div><footer id=footer>
 <div class=footer-left>
 Copyright &copy; 2022 Rob Herley
-</div>
-<div class=footer-right>
+</div><div class=footer-right>
 <nav>
 <ul>
-<li><a href=/>Home</a></li>
-<li><a href=/posts>Posts</a></li>
-<li><a href=/tags>Tags</a></li>
-</ul>
-</nav>
-</div>
-</footer>
-</div>
-</body>
-<link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
+<li><a href=/>Home</a></li><li><a href=/posts>Posts</a></li><li><a href=/tags>Tags</a></li></ul></nav></div></footer></div></body><link rel=stylesheet href=/lib/font-awesome/css/all.min.css>
 <script src=/lib/jquery/jquery.min.js></script>
 <script src=/js/main.js></script>
 </html>
