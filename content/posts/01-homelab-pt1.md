@@ -24,7 +24,7 @@ In this first part, I'll go over the hardware, some minor hacks, and the initial
 
 ## Hardware
 
-![Rack](/homelab/rack.png)
+![Rack](/content/homelab/rack.png)
 
 ### [Dell Poweredge r720xd](https://www.dell.com/en-us/work/shop/productdetailstxn/poweredge-r720xd)
   - **CPU:** 2 x Intel Xeon (16) @ 2.50GHz
@@ -83,13 +83,13 @@ from a user on the Unraid forum. Within that guide, there'll be instructions to 
 
 This entire rack is next to my desk, so reducing the amount of noise it makes is pretty important. At idle, the r720xd is suprisingly quiet, whereas the Intel JBOD consistently sounds like a jet engine. So, I grabbed my soldering iron, some wire cutters and three of Noctua's [NF-A6x25](https://noctua.at/en/nf-a6x25-pwm)'s. It was a relatively painless replacement, and the rubberized feet on the fans gave them a nice friction fit. They have roughly the same size, PWM layout and voltage as the stock Nidec Ultraflo fans. But, they have noticibly less airflow. Fortunately with only four drives in the JBOD they manage to stay nice and cool.
 
-![JBOD fan replacement](/homelab/jbod_fans.png)
+![JBOD fan replacement](/content/homelab/jbod_fans.png)
 
 ### Drive caddies
 
 I didn't have any extra of the OEM Dell drive caddies for the three SSDs I'm installing into the poweredge. Luckily, [someone on thingiverse](https://www.thingiverse.com/thing:2491236/) made these really sweet models that resememble mini versions of the poweredge. They are sturdy enough to reliably hold the SSDs in place, but I would not recommend them for spinning rust.
 
-![3D Printed Caddies](/homelab/caddies.png)
+![3D Printed Caddies](/content/homelab/caddies.png)
 
 ## Storage overview
 

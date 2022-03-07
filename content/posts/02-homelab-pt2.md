@@ -237,7 +237,7 @@ dir: rusty-dir
 
 Notice the `dir` type with a content of `backup,snippets,iso,vztmpl`. Once this is done, all of the storage will appear in the web console under the r720 node:
 
-![r720 storage in proxmox console](/homelab/pve_r720_storage.png)
+![r720 storage in proxmox console](/content/homelab/pve_r720_storage.png)
 
 ## ZFS shared over NFS
 
@@ -269,7 +269,7 @@ nfs: rusty-nfs
 
 In the Proxmox console, the new NFS storage should appear under the NUC node:
 
-![nuc storage in proxmox console](/homelab/pve_nuc_storage.png)
+![nuc storage in proxmox console](/content/homelab/pve_nuc_storage.png)
 
 As a quick test, on the r720 node, download a container template:
 
