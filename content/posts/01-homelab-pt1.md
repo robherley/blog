@@ -1,5 +1,5 @@
 ---
-title: "Homelab Part I: Intro, Hardware and Proxmox install"
+title: "🏡 Homelab I: Intro, Hardware and Proxmox install"
 date: 2022-01-09T00:00:00-05:00
 draft: false
 tags:

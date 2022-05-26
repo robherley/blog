@@ -1,5 +1,5 @@
 ---
-title: "Homelab Part III: Automation with Ansible and Hardening Access"
+title: "🏡 Homelab III: Automation with Ansible and Hardening Access"
 date: 2022-01-11T00:00:00-05:00
 draft: false
 tags:

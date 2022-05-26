@@ -1,5 +1,5 @@
 ---
-title: "Homelab Part IV: Proxmox Dynamic Inventory and LXC Templates"
+title: "🏡 Homelab IV: Proxmox Dynamic Inventory and LXC Templates"
 date: 2022-01-12T00:00:00-05:00
 draft: false
 tags:

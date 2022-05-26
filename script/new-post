@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: $0 <a-new-post>"
+  exit 1
+fi
+
+posts_dir="content/posts/"
+latest=$(hugo list all | tail -n+2 | sort | tail -n1 | awk -F ',' '{ print $1 }')
+
+if [ -z $latest ]; then
+  mkdir -p $posts_dir
+  hugo new posts/01-$1.md
+  exit 1
+fi
+
+latest_num=$(echo -n ${latest#"$posts_dir"} | awk -F '-' '{ print $1 }')
+plus_one=$(printf "%02d" $(expr $latest_num + 1))
+
+hugo new posts/$plus_one-$1.md

@@ -1,5 +1,5 @@
 ---
-title: "Homelab Part II: Proxmox cluster, ZFS and NFS"
+title: "🏡 Homelab II: Proxmox cluster, ZFS and NFS"
 date: 2022-01-10T00:00:00-05:00
 draft: false
 tags:

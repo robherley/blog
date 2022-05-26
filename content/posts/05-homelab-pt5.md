@@ -1,5 +1,5 @@
 ---
-title: "Homelab Part V: Proxmox VMs and cloud-init"
+title: "🏡 Homelab V: Proxmox VMs and cloud-init"
 date: 2022-01-13T00:00:00-05:00
 draft: false
 tags:

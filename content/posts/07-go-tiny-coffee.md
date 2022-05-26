@@ -1,5 +1,5 @@
 ---
-title: "Rewriting tiny.coffee to < 100 lines of Go"
+title: "☕ Rewriting tiny.coffee to < 100 lines of Go"
 date: 2022-03-06T00:00:00-05:00
 draft: false
 tags:
