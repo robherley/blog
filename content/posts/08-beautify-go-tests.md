@@ -1,7 +1,7 @@
 ---
 title: "🎨 Beautify your Go tests on GitHub Actions"
 date: 2022-07-23T00:51:58-04:00
-draft: true
+draft: false
 tags:
   - golang
   - testing
