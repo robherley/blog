@@ -28,7 +28,6 @@ weight = 3
   css = ["css/custom.css"]
   disablecopy = true
   dateFormat = "2006 Jan 2"
-  description = "👋 Hey y'all. This blog is my documented journey working with various aspects of technology. I'll try my best to keep things coherent and interesting, and hopefully I can teach a few people along the way."
   showProjectsList = true
   showAllPostsArchive = true
   showAllPostsOnHomePage = true
