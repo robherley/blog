@@ -1,4 +1,4 @@
-theme = "cactus"
+theme = "archie"
 baseURL = "https://blog.reb.gg/"
 languageCode = "en-us"
 title = "rob's blog"
@@ -14,31 +14,18 @@ name = "Posts"
 url = "/posts"
 weight = 2
 
-[[menu.main]]
-name = "Tags"
-url = "/tags"
-weight = 3
-
 [params]
-  author = "Rob Herley"
-  colortheme = "dark"
-  mainSectionTitle = "Recent posts"
-  tocInline = true
-  showReadTime = true
-  css = ["css/custom.css"]
-  disablecopy = true
-  dateFormat = "2006 Jan 2"
-  showProjectsList = true
-  showAllPostsArchive = true
-  showAllPostsOnHomePage = true
+  mode="dark"
+  customcss = ["css/custom.css"]
+  favicon = "images/logo.png"
 
 [[params.social]]
   name = "github"
   link = "https://github.com/robherley"
 
 [[params.social]]
-  name = "twitter"
-  link = "https://twitter.com/robherley"
+  name = "x"
+  link = "https://x.com/robherley"
 
 [[params.social]]
   name = "instagram"
@@ -50,16 +37,7 @@ weight = 3
 
 [markup]
   [markup.highlight]
-    anchorLineNos = false
-    codeFences = true
-    guessSyntax = false
-    hl_Lines = ''
-    lineAnchors = ''
-    lineNoStart = 1
-    lineNos = false
-    lineNumbersInTable = true
-    noClasses = true
-    style = 'dracula'
+    style = 'catppuccin-frappe'
     tabWidth = 4
 
 [outputs]

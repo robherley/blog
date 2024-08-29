@@ -1,2 +1,9 @@
 #!/usr/bin/env bash
+
+if ! [ -x "$(command -v hugo)" ]; then
+  echo 'Error: hugo is not installed.' >&2
+  echo 'https://gohugo.io/installation/' >&2
+  exit 1
+fi
+
 hugo server -D
