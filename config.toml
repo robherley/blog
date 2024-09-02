@@ -1,4 +1,4 @@
-theme = "archie"
+theme = "rebugo"
 baseURL = "https://blog.reb.gg/"
 languageCode = "en-us"
 title = "rob's blog"
@@ -15,9 +15,8 @@ url = "/posts"
 weight = 2
 
 [params]
-  mode="dark"
-  customcss = ["css/custom.css"]
   favicon = "images/logo.png"
+  readmeRepo = "robherley/robherley"
 
 [[params.social]]
   name = "github"
@@ -41,4 +40,4 @@ weight = 2
     tabWidth = 4
 
 [outputs]
-  home = ["HTML", "RSS", "JSON"]
+  home = ["HTML", "JSON"]
