@@ -1,4 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Testing on rob's blog</title><link>https://blog.reb.gg/tags/testing/</link><description>Recent content in Testing on rob's blog</description><generator>Hugo</generator><language>en-us</language><copyright>Rob Herley</copyright><lastBuildDate>Sat, 23 Jul 2022 00:51:58 -0400</lastBuildDate><atom:link href="https://blog.reb.gg/tags/testing/index.xml" rel="self" type="application/rss+xml"/><item><title>🎨 Beautify your Go tests on GitHub Actions</title><link>https://blog.reb.gg/posts/08-beautify-go-tests/</link><pubDate>Sat, 23 Jul 2022 00:51:58 -0400</pubDate><guid>https://blog.reb.gg/posts/08-beautify-go-tests/</guid><description># Was this made for humans? Although simple, Go&amp;rsquo;s default testing output leaves a lot to be desired:
-This has led rise to some other wrappers for go test, solely to be a better formatter for humans. For example, gotestsum does this quite well:
-This is definitely an improvement, and gotestsum even has additional formatting like exporting to JUnit XML.
-But, what if CI could produce a rich, interactive, summary like this:</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Testing on rob's blog</title><link>https://blog.reb.gg/tags/testing/</link><description>Recent content in Testing on rob's blog</description><generator>Hugo</generator><language>en-us</language><copyright>Rob Herley</copyright><lastBuildDate>Sat, 23 Jul 2022 00:51:58 -0400</lastBuildDate><atom:link href="https://blog.reb.gg/tags/testing/index.xml" rel="self" type="application/rss+xml"/><item><title>🎨 Beautify your Go tests on GitHub Actions</title><link>https://blog.reb.gg/posts/08-beautify-go-tests/</link><pubDate>Sat, 23 Jul 2022 00:51:58 -0400</pubDate><guid>https://blog.reb.gg/posts/08-beautify-go-tests/</guid><description>&lt;h2 id="was-this-made-for-humans">
+ &lt;a href="#was-this-made-for-humans">#&lt;/a>
+ Was this made for humans?
+&lt;/h2>
+&lt;p>Although simple, Go&amp;rsquo;s default testing output leaves a lot to be desired:&lt;/p>
+&lt;p>
+
+ &lt;img src="https://blog.reb.gg/content/beautify-go-tests/gotest.png" alt="go test output">
+
+&lt;/p>
+&lt;p>This has led rise to some other wrappers for &lt;code>go test&lt;/code>, solely to be a better formatter for humans. For example, &lt;a href="https://github.com/gotestyourself/gotestsum">&lt;code>gotestsum&lt;/code>&lt;/a> does this quite well:&lt;/p>
+&lt;p>
+
+ &lt;img src="https://blog.reb.gg/content/beautify-go-tests/gotestsum.png" alt="gotestsum output">
+
+&lt;/p>
+&lt;p>This is definitely an improvement, and &lt;code>gotestsum&lt;/code> even has additional formatting like exporting to JUnit XML.&lt;/p>
+&lt;p>But, what if CI could produce a rich, interactive, summary like this:&lt;/p></description></item></channel></rss>
