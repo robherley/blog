@@ -3,16 +3,14 @@
  Was this made for humans?
 &lt;/h2>
 &lt;p>Although simple, Go&amp;rsquo;s default testing output leaves a lot to be desired:&lt;/p>
-&lt;p>
+
 
  &lt;img src="https://blog.reb.gg/content/beautify-go-tests/gotest.png" alt="go test output">
 
-&lt;/p>
 &lt;p>This has led rise to some other wrappers for &lt;code>go test&lt;/code>, solely to be a better formatter for humans. For example, &lt;a href="https://github.com/gotestyourself/gotestsum">&lt;code>gotestsum&lt;/code>&lt;/a> does this quite well:&lt;/p>
-&lt;p>
+
 
  &lt;img src="https://blog.reb.gg/content/beautify-go-tests/gotestsum.png" alt="gotestsum output">
 
-&lt;/p>
 &lt;p>This is definitely an improvement, and &lt;code>gotestsum&lt;/code> even has additional formatting like exporting to JUnit XML.&lt;/p>
 &lt;p>But, what if CI could produce a rich, interactive, summary like this:&lt;/p></description></item></channel></rss>
