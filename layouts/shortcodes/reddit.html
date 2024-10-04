@@ -1,0 +1,17 @@
+{{ $url := .Get 0 }}
+{{ $title := .Get 1 }}
+<blockquote
+  class="reddit-embed-bq"
+  style="height: 316px"
+  data-embed-theme="dark"
+  data-embed-height="316"
+>
+  <a href="{{ $url }}">
+    {{ $title }}
+  </a>
+</blockquote>
+<script
+  async=""
+  src="https://embed.reddit.com/widgets.js"
+  charset="UTF-8"
+></script>

@@ -1,0 +1,10 @@
+{{ $count := .Get "n" }}
+{{ $label := .Get "label" }}
+{{ $color := .Get "color" | default "primary" }}
+{{ $colorstyle := printf "color: var(--color-%s);" $color }}
+<div class="counter" data-count="{{ $count }}" style="{{ $colorstyle | safeCSS }}">
+  <div class="counter-count">
+    0
+  </div>
+  <div class="counter-label">{{ $label | markdownify }}</div>
+</div>

@@ -6,4 +6,4 @@ if ! [ -x "$(command -v hugo)" ]; then
   exit 1
 fi
 
-hugo server -D
+hugo server --ignoreCache
