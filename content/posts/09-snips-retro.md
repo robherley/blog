@@ -8,6 +8,8 @@ tags:
   - ssh
   - sqlite
   - tensorflow
+images:
+  - /content/snips-retro/preview.png
 ---
 
 {{< tweet "1657139515557920770" >}}
@@ -46,13 +48,13 @@ And that's exactly what snips is.
 2. It works with other command line programs via pipes.
 3. The "API" is just text over stdin/stdout.
 
-![pipe examples](https://vhs.charm.sh/vhs-7j0LzNCGaBjF6v91QkXJgr.gif "Pipe into whatever you want")
+![pipe examples](/content/snips-retro/pipe.gif "Pipe into whatever you want")
 
 But, this isn't just a command line utility. While I love the Unix Philosophy, it is not my creed. Just as much as I believe simplicity is key in software development, the user experience is just as important. This is often a very hard balance.
 
 Under the covers, snips.sh is a stateful remote resource that requires functionality beyond the simple input/output. And that's what the TUI is for. It's a shell into the user's snips. You can use the TUI to view snips syntax highlighted, edit attributes and delete them.
 
-![tui](https://vhs.charm.sh/vhs-1MRS4DCN6XUpxzM2PrqCfL.gif "A user can `ssh` into the TUI to view/manage snips")
+![tui](/content/snips-retro/ssh.gif "A user can `ssh` into the TUI to view/manage snips")
 
 As a developer building tools for developers, I know how comfortable most are in the terminal, which is why I chose that as the entrypoint over a web UI. They don't even need to lift their fingers off the keyboard.
 
@@ -230,7 +232,7 @@ You can find the full language list... [on snips](https://snips.sh/f/yfojYVMqSU)
 
 ### Open Source
 
-We've had some great contributions like [zstd compression](https://github.com/robherley/snips.sh/pull/46), [arm64 support](https://github.com/robherley/snips.sh/pull/42), bugfixes and more. Dependabot is also carrying the weight a bit with **~65** Pull Requests alone.
+We've had some great contributions like [zstd compression](https://github.com/robherley/snips.sh/pull/46), [arm64 support](https://github.com/robherley/snips.sh/pull/42), bug fixes and more. Dependabot is also carrying the weight a bit with **~65** Pull Requests alone.
 
 {{< row >}}
 
@@ -253,4 +255,3 @@ Appreciate all the contributions and kind words people have given me throughout 
 [^1]: https://sqlite.org/fasterthanfs.html
 [^2]: https://fly.io/docs/litefs/
 [^3]: https://github.com/robherley/snips.sh/commit/4982dafd6204d56c7670aa2ef258638e318447f4
-[^4]: https://github.com/robherley/snips.sh/pkgs/container/snips.sh
