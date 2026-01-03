@@ -3,7 +3,8 @@ img {
 }
 
 .twitter-tweet > iframe {
-  border-radius: 13px;
+  border-radius: 0.75rem;
+  border: 0.5px solid var(--color-gray-10);
 }
 
 .counter {

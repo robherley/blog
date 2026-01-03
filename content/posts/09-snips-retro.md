@@ -12,7 +12,7 @@ images:
   - /content/snips-retro/preview.png
 ---
 
-{{< tweet "1657139515557920770" >}}
+{{< xweet user="robherley" id="1657139515557920770" >}}
 
 ## What the snip?
 
@@ -89,9 +89,9 @@ While it's nice to keep things as simple as can be, like anything with software 
 
 As it turns out, people like easy to use software:
 
-{{< tweet "1657456167524917248" >}}
+{{< xweet user="ArnabSen1729" id="1657456167524917248" >}}
 
-{{< tweet "1657477244158189570" >}}
+{{< xweet user="silasmorkgard" id="1657477244158189570" >}}
 
 ## The technology
 

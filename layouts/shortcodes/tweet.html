@@ -1,8 +1,0 @@
-{{ $id := .Get 0 }}
-{{ $data := dict }}
-{{ $url := printf "https://api.twitter.com/1.1/statuses/oembed.json?dnt=1&hide_media=1&theme=dark&align=center&hide_thread=1&id=%s" $id }}
-{{ with resources.GetRemote $url }}
-  {{ $data = . | transform.Unmarshal }}
-  {{ $data.html | safeHTML }}
-{{ end }}
-

@@ -44,3 +44,7 @@ weight = 2
 
 [outputs]
   home = ["HTML", "JSON"]
+
+[privacy]
+  [privacy.x]
+    enableDNT = true
